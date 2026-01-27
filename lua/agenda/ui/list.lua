@@ -13,7 +13,7 @@ function ValueList:add(item)
 end
 
 function ValueList:remove(item)
-    for i, v in ipairs(self.items) do
+    for i, v in pairs(self.items) do
         if v == item then
             table.remove(self.items, i)
             return true
