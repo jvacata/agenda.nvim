@@ -1,3 +1,3 @@
 A unified Neovim plugin for advanced personal productivity. Organize tasks, track projects with kanban boards, take notes, and maintain a daily journal — all inside Neovim.
 
-CURRENTLY IN DEVELOPMENT
+!!! UNSTABLE - CURRENTLY IN DEVELOPMENT !!!

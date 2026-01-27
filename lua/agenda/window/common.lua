@@ -1,8 +1,10 @@
 local M = {}
 
-M.create_or_find_main_window = function()
+M.get_win = function()
     local bufnr = M.get_or_create_buffer()
-    return vim.api.nvim_open_win(bufnr, true, {
+    vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
+
+    return bufnr, vim.api.nvim_open_win(bufnr, true, {
         relative = 'editor',
         width = math.floor(vim.o.columns * 0.8),
         height = math.floor(vim.o.lines * 0.8),
@@ -26,5 +28,10 @@ M.get_or_create_buffer = function()
     return existing_messages_buf or vim.api.nvim_create_buf(false, true)
 end
 
+M.clean_buffer = function(bufnr)
+    vim.api.nvim_set_option_value('modifiable', true, { buf = bufnr })
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
+    vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
+end
 
 return M

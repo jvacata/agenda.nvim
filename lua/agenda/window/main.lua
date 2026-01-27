@@ -1,9 +1,10 @@
 local M = {}
 
 local window_common = require('agenda.window.common')
+local task_window = require('agenda.window.tasks')
 
 M.open = function()
-    window_common.create_or_find_main_window()
+    task_window.open()
 end
 
 return M
