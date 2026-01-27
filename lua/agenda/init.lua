@@ -8,13 +8,12 @@ end
 
 M.create_commands = function()
     vim.api.nvim_create_user_command("Agenda", function(opts)
-        main_window.open()
+        main_window.open(opts.args)
     end, {
         nargs = '*',
         desc = 'Open agenda buffer',
         complete = 'command',
     })
-
 end
 
 return M
