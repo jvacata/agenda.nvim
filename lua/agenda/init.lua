@@ -14,6 +14,7 @@ M.create_commands = function()
         desc = 'Open agenda buffer',
         complete = 'command',
     })
+
 end
 
 return M

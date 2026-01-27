@@ -4,7 +4,7 @@ M.get_win = function()
     local bufnr = M.get_or_create_buffer()
     vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
 
-    return bufnr, vim.api.nvim_open_win(bufnr, true, {
+    local winnr = vim.api.nvim_open_win(bufnr, true, {
         relative = 'editor',
         width = math.floor(vim.o.columns * 0.8),
         height = math.floor(vim.o.lines * 0.8),
@@ -13,6 +13,16 @@ M.get_win = function()
         style = 'minimal',
         border = 'rounded',
     })
+
+    vim.api.nvim_create_autocmd("WinClosed", {
+        pattern = tostring(winnr),
+        callback = function()
+            vim.api.nvim_set_option_value('guicursor',
+                'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor', {})
+        end
+    })
+
+    return bufnr, winnr
 end
 
 M.get_or_create_buffer = function()
