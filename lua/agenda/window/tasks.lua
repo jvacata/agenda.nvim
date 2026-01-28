@@ -3,6 +3,8 @@ local M = {}
 local window_common = require('agenda.window.common')
 local task_repository = require('agenda.repository.task_repository')
 local window_config = require('agenda.config.window')
+local task_service = require('agenda.service.task_service')
+local utils = require('agenda.util.common')
 
 local current_line_index = 0
 local current_detail_line_index = 0
@@ -15,6 +17,8 @@ local current_window = "list"
 local ns = vim.api.nvim_create_namespace("agenda")
 
 M.open = function()
+    task_service.load_tasks()
+
     local bufnr, winnr = window_common.get_win("agenda_task_list", window_config.task_list_window())
     local detail_bufnr, detail_winnr = window_common.get_win("agenda_task_detail", window_config.task_detail_window())
     M.set_task_window_mapping(bufnr, detail_bufnr, winnr, detail_winnr)
@@ -54,7 +58,8 @@ M.draw_task_detail = function(bufnr)
 
     vim.api.nvim_set_option_value('modifiable', true, { buf = bufnr })
     local task = task_repository.get_all()[current_line_index + 1]
-    vim.api.nvim_buf_set_lines(bufnr, 0, 1, false, { "Title: " .. task.title })
+    vim.api.nvim_buf_set_lines(bufnr, 0, 1, false, { "Id: " .. task.id })
+    vim.api.nvim_buf_set_lines(bufnr, 1, 2, false, { "Title: " .. task.title })
     vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
 end
 
@@ -79,9 +84,11 @@ M.move_down = function(bufnr, detail_bufnr)
 end
 
 M.create_task = function(title, bufnr, detail_bufnr)
-    task_repository.add({ title = title })
+    local task = { id = utils.generate_uuid_v4(), title = title }
+    task_repository.add(task)
     M.draw_task_list(bufnr)
     M.draw_task_detail(detail_bufnr)
+    task_service.update_task(task)
 end
 
 M.remove_task = function(bufnr, detail_bufnr)
@@ -135,11 +142,12 @@ end
 M.do_action = function(list_bufnr, detail_bufnr)
     if current_window == "list" then
         current_window = "detail"
+        current_detail_line_index = 1
         M.highlight_detail_line(detail_bufnr)
     elseif current_window == "detail" then
         local data = ""
         local task = task_repository.get_all()[current_line_index + 1]
-        if current_detail_line_index == 0 then
+        if current_detail_line_index == 1 then
             data = task.title
         else
             return
@@ -175,6 +183,7 @@ M.close_edit = function(winnr, bufnr, list_bufnr, detail_bufnr)
     local value = vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1]
     local task = task_repository.get_all()[current_line_index + 1]
     task.title = value
+    task_service.update_task(task)
 
     vim.api.nvim_set_option_value('guicursor', 'n-v-i:NoCursor', {})
     vim.api.nvim_win_close(winnr, true)
