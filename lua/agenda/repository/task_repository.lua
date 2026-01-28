@@ -21,4 +21,8 @@ M.size = function()
     return #tasks:get_all()
 end
 
+M.clear = function()
+    tasks:clear()
+end
+
 return M

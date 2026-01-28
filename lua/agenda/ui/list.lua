@@ -26,4 +26,8 @@ function ValueList:get_all()
     return self.items
 end
 
+function ValueList:clear()
+    self.items = {}
+end
+
 return ValueList
