@@ -1,37 +1,36 @@
-local M = {}
+local TaskRepository = {}
 
 local value_list = require('agenda.ui.list')
 
 local tasks = value_list:new()
 
 -- @param task Task
-M.add = function(task)
+function TaskRepository:add(task)
     tasks:add(task)
 end
 
-M.remove = function(task)
+function TaskRepository:remove(task)
     tasks:remove(task)
 end
 
-M.get_all = function()
+function TaskRepository:get_all()
     return tasks:get_all()
 end
 
-M.size = function()
+function TaskRepository:size()
     return #tasks:get_all()
 end
 
-M.clear = function()
+function TaskRepository:clear()
     tasks:clear()
 end
 
-M.exists = function(task)
-    for _, existing_task in ipairs(M.get_all()) do
+function TaskRepository:exists(task)
+    for _, existing_task in ipairs(TaskRepository:get_all()) do
         if existing_task.id == task.id then
             break
         end
     end
 end
 
-
-return M
+return TaskRepository

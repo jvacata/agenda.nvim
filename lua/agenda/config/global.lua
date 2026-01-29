@@ -1,14 +1,16 @@
-local M = {}
+local GlobalConfig = {}
 
-M.path = ''
-M.tasks_path = ''
-M.ns = vim.api.nvim_create_namespace("agenda")
+GlobalConfig.path = ''
+GlobalConfig.tasks_path = ''
+GlobalConfig.ns = vim.api.nvim_create_namespace("agenda")
 
-M.set_paths = function(path)
-    M.path = path
-    M.tasks_path = M.path .. '/tasks'
+function GlobalConfig:set_paths(path)
+    self.path = path
+    self.tasks_path = GlobalConfig.path .. '/tasks'
 end
 
-M.set_paths(vim.fn.expand('~/.local/share/agenda.nvim'))
+function GlobalConfig:init()
+    self:set_paths(vim.fn.expand('~/.local/share/agenda.nvim'))
+end
 
-return M
+return GlobalConfig

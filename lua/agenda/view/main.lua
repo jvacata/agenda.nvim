@@ -1,10 +1,13 @@
-local M = {}
+local MainView = {}
 
 local window_util = require('agenda.util.window')
 local task_view = require('agenda.view.task')
 local window_config = require('agenda.config.window')
 
-M.open = function(args)
+function MainView:init()
+end
+
+function MainView:open(args)
     vim.api.nvim_set_hl(0, "NoCursor", { fg = "#000000", bg = "#000000", blend = 100 })
     vim.api.nvim_set_option_value('guicursor', 'n-v-i:NoCursor', {})
 
@@ -12,17 +15,20 @@ M.open = function(args)
         task_view.open()
         return
     else
-        local _, winnr = window_util.get_win("agenda_main", window_config.task_list_window())
-        M.set_global_mapping(winnr)
+        local _, winnr = window_util:get_win("agenda_main", window_config:task_list_window())
+        MainView:set_global_mapping(winnr)
     end
 end
 
-M.set_global_mapping = function(winnr)
-    vim.keymap.set('n', 'q', function() M.close(winnr) end, { buffer = true, silent = true })
+function MainView:set_global_mapping(winnr)
+    vim.keymap.set('n', 'q', function() MainView:close(winnr) end, { buffer = true, silent = true })
 end
 
-M.close = function(winnr)
+function MainView:render()
+end
+
+function MainView:close(winnr)
     vim.api.nvim_win_close(winnr, true)
 end
 
-return M
+return MainView

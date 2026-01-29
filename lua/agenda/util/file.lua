@@ -1,19 +1,19 @@
-local M = {}
+local FileUtils = {}
 
-M.save_file = function(path, filename, content)
-    M.ensure_file_path(path)
+function FileUtils:save_file(path, filename, content)
+    FileUtils:ensure_file_path(path)
 
     local file = io.open(path .. "/" .. filename, "w")
     file:write(content)
     file:close()
 end
 
-M.remove_file = function(path, filename)
+function FileUtils:remove_file(path, filename)
     local filepath = path .. "/" .. filename
     os.remove(filepath)
 end
 
-M.load_file = function(file)
+function FileUtils:load_file(file)
     local f = io.open(file, "r")
     local content = f:read("*a")
     local data = vim.json.decode(content)
@@ -21,19 +21,19 @@ M.load_file = function(file)
     return data
 end
 
-M.get_dir_files = function(dir)
+function FileUtils:get_dir_files(dir)
     return vim.fn.glob(dir .. "/*", false, true)
 end
 
-M.ensure_file_path = function(filepath)
+function FileUtils:ensure_file_path(filepath)
     local dir = filepath:match("(.*/)")
     if dir then
-        M.ensure_dir(dir)
+        FileUtils:ensure_dir(dir)
     end
 end
 
-M.ensure_dir = function(path)
+function FileUtils:ensure_dir(path)
     os.execute('mkdir -p "' .. path .. '"')
 end
 
-return M
+return FileUtils

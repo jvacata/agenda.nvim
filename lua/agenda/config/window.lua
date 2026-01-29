@@ -1,6 +1,6 @@
-local M = {}
+local WindowConfig = {}
 
-M.task_list_window = function()
+function WindowConfig:task_list_window()
     return {
         relative = 'editor',
         width = math.floor(40),
@@ -12,7 +12,7 @@ M.task_list_window = function()
     }
 end
 
-M.task_detail_window = function()
+function WindowConfig:task_detail_window()
     return {
         relative = 'editor',
         width = math.floor(100),
@@ -24,7 +24,7 @@ M.task_detail_window = function()
     }
 end
 
-M.task_edit_window = function()
+function WindowConfig:task_edit_window()
     return {
         relative = 'editor',
         width = math.floor(40),
@@ -36,4 +36,4 @@ M.task_edit_window = function()
     }
 end
 
-return M
+return WindowConfig

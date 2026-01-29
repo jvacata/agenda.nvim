@@ -1,10 +1,10 @@
-local M = {}
+local WindowUtils = {}
 
-M.get_win = function(buf_name, win_cfg)
-    local bufnr = M.get_or_create_buffer(buf_name)
+function WindowUtils:get_win(buf_name, win_cfg)
+    local bufnr = WindowUtils:get_or_create_buffer(buf_name)
     vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
 
-    local winnr = M.get_or_create_window(bufnr, win_cfg)
+    local winnr = WindowUtils:get_or_create_window(bufnr, win_cfg)
 
     vim.api.nvim_create_autocmd("WinClosed", {
         pattern = tostring(winnr),
@@ -18,7 +18,7 @@ M.get_win = function(buf_name, win_cfg)
     return bufnr, winnr
 end
 
-M.get_or_create_window = function(bufnr, win_cfg)
+function WindowUtils:get_or_create_window(bufnr, win_cfg)
     local wins = vim.api.nvim_list_wins()
     for _, win_id in pairs(wins) do
         local win_currect_buf_id = vim.api.nvim_win_get_buf(win_id)
@@ -31,7 +31,7 @@ M.get_or_create_window = function(bufnr, win_cfg)
     return vim.api.nvim_open_win(bufnr, true, win_cfg)
 end
 
-M.get_or_create_buffer = function(buf_name)
+function WindowUtils:get_or_create_buffer(buf_name)
     local buf_list = vim.api.nvim_list_bufs()
     local existing_messages_buf = nil
     for _, buf_id in pairs(buf_list) do
@@ -51,10 +51,10 @@ M.get_or_create_buffer = function(buf_name)
     return new_bufnr
 end
 
-M.clean_buffer = function(bufnr)
+function WindowUtils:clean_buffer(bufnr)
     vim.api.nvim_set_option_value('modifiable', true, { buf = bufnr })
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
     vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
 end
 
-return M
+return WindowUtils
