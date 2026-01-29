@@ -1,7 +1,7 @@
 local M = {}
 
-local window_common = require('agenda.window.common')
-local task_window = require('agenda.window.tasks')
+local window_util = require('agenda.util.window')
+local task_view = require('agenda.view.task')
 local window_config = require('agenda.config.window')
 
 M.open = function(args)
@@ -9,10 +9,10 @@ M.open = function(args)
     vim.api.nvim_set_option_value('guicursor', 'n-v-i:NoCursor', {})
 
     if args == "tasks" then
-        task_window.open()
+        task_view.open()
         return
     else
-        local _, winnr = window_common.get_win("agenda_main", window_config.task_list_window())
+        local _, winnr = window_util.get_win("agenda_main", window_config.task_list_window())
         M.set_global_mapping(winnr)
     end
 end

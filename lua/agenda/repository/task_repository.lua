@@ -25,4 +25,13 @@ M.clear = function()
     tasks:clear()
 end
 
+M.exists = function(task)
+    for _, existing_task in ipairs(M.get_all()) do
+        if existing_task.id == task.id then
+            break
+        end
+    end
+end
+
+
 return M

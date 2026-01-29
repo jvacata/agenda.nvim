@@ -14,7 +14,7 @@ end
 
 function ValueList:remove(item)
     for i, v in pairs(self.items) do
-        if v == item then
+        if v.id == item.id then
             table.remove(self.items, i)
             return true
         end
