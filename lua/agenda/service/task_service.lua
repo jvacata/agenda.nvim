@@ -22,7 +22,7 @@ function TaskService:init_load_tasks()
     local task_files = file_utils:get_dir_files(global_config.tasks_path)
     for _, task_file in ipairs(task_files) do
         local data = file_utils:load_file(task_file)
-        task_repository.add(data)
+        task_repository:add(data)
     end
 end
 

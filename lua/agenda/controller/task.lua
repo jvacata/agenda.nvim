@@ -5,9 +5,11 @@ local task_repository = require('agenda.repository.task_repository')
 local task_view = require('agenda.view.task')
 local common_util = require('agenda.util.common')
 local input_controller = require('agenda.controller.input')
+local render_controller = require('agenda.controller.render')
 
 function TaskController:init()
     task_service:init_load_tasks()
+    render_controller:render()
 end
 
 function TaskController:bind_mapping()
