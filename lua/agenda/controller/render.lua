@@ -36,7 +36,11 @@ function RenderController:set_view(view_name, params)
     self:render()
 end
 
-function RenderController:remove_view(view_name)
+function RenderController:remove_view(view_name, render)
+    if render == nil then
+        render = true
+    end
+
     for i, v in ipairs(self.active_views) do
         if v == view_name then
             table.remove(self.active_views, i)
@@ -45,6 +49,11 @@ function RenderController:remove_view(view_name)
             break
         end
     end
+
+    if render == false then
+        return
+    end
+
     self:render()
 end
 
@@ -63,7 +72,7 @@ function RenderController:destroy()
     local active_views_copy = table_utils:deepCopy(self.active_views)
 
     for _, view_name in ipairs(active_views_copy) do
-        self:remove_view(view_name)
+        self:remove_view(view_name, false)
     end
 end
 

@@ -6,11 +6,19 @@ local file_utils = require('agenda.util.file')
 local string_utils = require('agenda.util.string')
 
 function TaskService:update_task(task)
-    if task_repository:exists(task) then
-        task_repository:remove(task)
+    local tasks = task_repository:get_all()
+    local updated = false
+    for index, existing in ipairs(tasks) do
+        if existing.id == task.id then
+            tasks[index] = task
+            updated = true
+            break
+        end
+    end
+    if not updated then
+        task_repository:add(task)
     end
 
-    task_repository:add(task)
     file_utils:save_file(global_config.workspace_task_path, task.id, vim.json.encode(task))
 end
 
