@@ -21,8 +21,8 @@ end
 function WindowUtils:get_or_create_window(bufnr, win_cfg)
     local wins = vim.api.nvim_list_wins()
     for _, win_id in pairs(wins) do
-        local win_currect_buf_id = vim.api.nvim_win_get_buf(win_id)
-        if win_currect_buf_id == bufnr then
+        local win_current_buf_id = vim.api.nvim_win_get_buf(win_id)
+        if win_current_buf_id == bufnr then
             vim.api.nvim_tabpage_set_win(0, win_id)
             return win_id
         end
