@@ -59,8 +59,7 @@ end
 
 function RenderController:destroy()
     for _, view_name in ipairs(self.active_views) do
-        local view_instance = self.view_config[view_name].view
-        view_instance:destroy()
+        self:remove_view(view_name)
     end
 end
 

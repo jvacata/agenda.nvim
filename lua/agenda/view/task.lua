@@ -8,8 +8,8 @@ local task_repository = require('agenda.repository.task_repository')
 local global_config = require('agenda.config.global')
 local window_config = require('agenda.config.window')
 
-TaskView.current_line_index = 0
-TaskView.current_detail_line_index = 0
+TaskView.current_line_index = nil
+TaskView.current_detail_line_index = nil
 
 -- @type number
 TaskView.list_bufnr = nil
@@ -32,9 +32,15 @@ TaskView.edit_winnr = nil
 TaskView.current_window = "list"
 
 function TaskView:init()
-    TaskView.list_bufnr, TaskView.list_winnr = window_util:get_win("agenda_task_list", window_config:task_list_window())
-    TaskView.detail_bufnr, TaskView.detail_winnr = window_util:get_win("agenda_task_detail",
+    self.list_bufnr, self.list_winnr = window_util:get_win("agenda_task_list", window_config:task_list_window())
+    self.detail_bufnr, self.detail_winnr = window_util:get_win("agenda_task_detail",
         window_config:task_detail_window())
+
+    if task_repository:size() > 0 then
+        self.current_line_index = 0
+    else
+        self.current_line_index = nil
+    end
 end
 
 function TaskView:render()
@@ -57,7 +63,7 @@ end
 
 function TaskView:render_task_detail()
     window_util:clean_buffer(self.detail_bufnr)
-    if task_repository:size() == 0 then
+    if task_repository:size() == 0 or self.current_line_index == nil then
         return
     end
 
@@ -77,6 +83,10 @@ end
 function TaskView:highlight_list_line(bufnr)
     TaskView:clear_marks(bufnr)
 
+    if self.current_line_index == nil then
+        return
+    end
+
     local task_count = task_repository:size()
     if task_count > 0 then
         local len = #(task_repository:get_all()[self.current_line_index + 1].title)
@@ -85,6 +95,10 @@ function TaskView:highlight_list_line(bufnr)
 end
 
 function TaskView:highlight_detail_line(bufnr)
+    if self.current_detail_line_index == nil then
+        return
+    end
+
     TaskView:clear_marks(bufnr)
     local len = #(vim.api.nvim_buf_get_lines(bufnr, self.current_detail_line_index, self.current_detail_line_index + 1, false)[1])
     TaskView:highlight_line(bufnr, self.current_detail_line_index, len)

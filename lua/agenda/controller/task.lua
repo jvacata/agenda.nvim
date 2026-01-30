@@ -46,10 +46,19 @@ function TaskController:create_task(title)
         title = title,
     }
     task_service:update_task(task)
-    task_view:render()
+
+    if task_view.current_line_index == nil then
+        task_view.current_line_index = 0
+    end
+
+    render_controller:render()
 end
 
 function TaskController:move_up()
+    if task_view.current_line_index == nil then
+        return
+    end
+
     if task_view.current_window == "list" then
         if task_view.current_line_index > 0 then
             task_view.current_line_index = task_view.current_line_index - 1
@@ -59,6 +68,10 @@ function TaskController:move_up()
 end
 
 function TaskController:move_down()
+    if task_view.current_line_index == nil then
+        return
+    end
+
     if task_view.current_window == "list" then
         if task_view.current_line_index < task_repository:size() - 1 then
             task_view.current_line_index = task_view.current_line_index + 1
@@ -68,6 +81,10 @@ function TaskController:move_down()
 end
 
 function TaskController:remove_task()
+    if task_view.current_window ~= "list" or task_view.current_line_index == nil then
+        return
+    end
+
     local task = task_service:get_current_selected_task(task_view.current_line_index)
     if task == nil then
         return
@@ -77,7 +94,7 @@ function TaskController:remove_task()
     local task_count = task_repository:size()
 
     if task_count == 0 then
-        task_view.current_line_index = 0
+        task_view.current_line_index = nil
     elseif task_view.current_line_index >= task_count then
         task_view.current_line_index = task_count - 1
     end
@@ -88,6 +105,11 @@ end
 function TaskController:show_edit()
     local data = ""
     local task = task_service:get_current_selected_task(task_view.current_line_index)
+
+    if task == nil then
+        return
+    end
+
     if task_view.current_detail_line_index == constants.TITLE_LINE_INDEX then
         data = task.title
     else
@@ -109,10 +131,14 @@ function TaskController:show_edit()
 end
 
 function TaskController:close()
-    task_view:destroy()
+    render_controller:remove_view("task")
 end
 
 function TaskController:do_action()
+    if task_view.current_line_index == nil then
+        return
+    end
+
     if task_view.current_window == "list" then
         self:edit_task()
     elseif task_view.current_window == "detail" then

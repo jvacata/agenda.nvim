@@ -1,13 +1,15 @@
 local MainView = {}
 
 function MainView:init()
+    -- TODO will be implemented later
 end
 
 function MainView:render()
+    -- TODO will be implemented later
 end
 
-function MainView:destroy(winnr)
-    vim.api.nvim_win_close(winnr, true)
+function MainView:destroy()
+    -- TODO will be implemented later
 end
 
 return MainView
