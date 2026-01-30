@@ -28,7 +28,7 @@ or with custom options, with defaults as following
 
 # Usage
 
-Run ```:Agenda``` to open main menu
+Run ```:Agenda``` to open main menu (not implemented yet)
 
 ```:Agenda tasks``` to open task manager
 

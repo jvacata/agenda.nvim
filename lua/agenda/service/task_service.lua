@@ -1,9 +1,9 @@
 local TaskService = {}
 
 local task_repository = require('agenda.repository.task_repository')
-local task_view = require('agenda.view.task')
 local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
+local string_utils = require('agenda.util.string')
 
 function TaskService:update_task(task)
     if not task_repository:exists(task) then
@@ -23,12 +23,16 @@ function TaskService:init_load_tasks()
     local task_files = file_utils:get_dir_files(global_config.workspace_task_path)
     for _, task_file in ipairs(task_files) do
         local data = file_utils:load_file(task_file)
+        if data.id == nil or not string_utils:is_valid_uuid(data.id) then
+            goto continue
+        end
         task_repository:add(data)
+        ::continue::
     end
 end
 
-function TaskService:get_current_selected_task()
-    return task_repository:get_all()[task_view.current_line_index + 1]
+function TaskService:get_current_selected_task(current_line_index)
+    return task_repository:get_all()[current_line_index + 1]
 end
 
 return TaskService

@@ -68,7 +68,7 @@ function TaskController:move_down()
 end
 
 function TaskController:remove_task()
-    local task = task_service:get_current_selected_task()
+    local task = task_service:get_current_selected_task(task_view.current_line_index)
     if task == nil then
         return
     end
@@ -87,7 +87,7 @@ end
 
 function TaskController:show_edit()
     local data = ""
-    local task = task_service:get_current_selected_task()
+    local task = task_service:get_current_selected_task(task_view.current_line_index)
     if task_view.current_detail_line_index == constants.TITLE_LINE_INDEX then
         data = task.title
     else
@@ -99,7 +99,7 @@ function TaskController:show_edit()
             return
         end
 
-        local task = task_service:get_current_selected_task()
+        local task = task_service:get_current_selected_task(task_view.current_line_index)
         task.title = new_value
         task_service:update_task(task)
         render_controller:render()
