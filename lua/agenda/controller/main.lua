@@ -12,7 +12,8 @@ function MainController:route(args)
     if args == "tasks" then
         render_controller:set_view("task")
     else
-        render_controller:set_view("main")
+        -- TODO fallback to task view, because main view is not implemented yet
+        render_controller:set_view("task")
     end
 end
 

@@ -8,11 +8,10 @@ local common_util = require('agenda.util.common')
 local render_controller = require('agenda.controller.render')
 
 function TaskController:init()
-    task_service:init_load_tasks()
-    render_controller:render()
 end
 
 function TaskController:init_view()
+    task_service:init_load_tasks()
     task_view:init()
     self:bind_mapping()
 end
