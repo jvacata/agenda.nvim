@@ -37,7 +37,10 @@ Run ```:Agenda``` to open main menu (not implemented yet)
 
 Keybindings:
 ```
-<j> - Move down
-<k> - Move up
+<j>  - Move down
+<k>  - Move up
 <CR> - Edit task / task value
+<a>  - Add new task
+<dd> - Delete task
+<q>  - Close task manager
 ```

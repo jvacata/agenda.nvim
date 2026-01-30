@@ -1,6 +1,6 @@
 local StringUtils = {}
 
-function StringUtils:is_valid_uuid(str)
+function StringUtils:is_valid_id(str)
     return str:match("^[%w%-]+$") ~= nil
 end
 

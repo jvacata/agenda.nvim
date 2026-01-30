@@ -23,7 +23,7 @@ function TaskService:init_load_tasks()
     local task_files = file_utils:get_dir_files(global_config.workspace_task_path)
     for _, task_file in ipairs(task_files) do
         local data = file_utils:load_file(task_file)
-        if data.id == nil or not string_utils:is_valid_uuid(data.id) then
+        if type(data) ~= "table" or data.id == nil or not string_utils:is_valid_id(data.id) then
             goto continue
         end
         task_repository:add(data)
