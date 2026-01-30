@@ -24,8 +24,12 @@ function FileUtils:load_file(file)
         error("Failed to open file for reading: " .. vim.inspect(file) .. " - " .. tostring(err))
     end
     local content = f:read("*a")
-    local data = vim.json.decode(content)
     f:close()
+
+    local ok, data = pcall(vim.json.decode, content)
+    if not ok then
+        error("Failed to decode JSON from file: " .. vim.inspect(file) .. " - " .. tostring(data))
+    end
     return data
 end
 
