@@ -16,7 +16,7 @@ describe('Integration tests for tasks', function()
     end)
 
     describe('Creating task', function()
-        it('Task will be created, gui shutdown and reopen and task will be then removed', function()
+        it('Task is created, GUI is shut down and reopened, then task is removed', function()
             vim.cmd('Agenda tasks')
             task_controller:create_task("Test task")
             render_controller:destroy()
@@ -53,8 +53,18 @@ describe('Integration tests for tasks', function()
 
 
     describe('Renaming task', function()
-        local mocked = stub(input_controller, 'get_value')
-        mocked.returns("Test task renamed")
+        local mocked
+        before_each(function()
+            mocked = stub(input_controller, 'get_value')
+            mocked.returns("Test task renamed")
+        end)
+
+        after_each(function()
+            if mocked then
+                mocked:revert()
+                mocked = nil
+            end
+        end)
 
         it('Task will be created and renamed', function()
             vim.cmd('Agenda tasks')
