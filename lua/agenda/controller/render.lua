@@ -1,5 +1,7 @@
 local RenderController = {}
 
+local table_utils = require("agenda.util.table")
+
 RenderController.active_views = {}
 RenderController.view_config = {}
 
@@ -58,7 +60,9 @@ function RenderController:render()
 end
 
 function RenderController:destroy()
-    for _, view_name in ipairs(self.active_views) do
+    local active_views_copy = table_utils:deepCopy(self.active_views)
+
+    for _, view_name in ipairs(active_views_copy) do
         self:remove_view(view_name)
     end
 end

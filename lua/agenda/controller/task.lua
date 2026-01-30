@@ -131,6 +131,11 @@ function TaskController:show_edit()
 end
 
 function TaskController:close()
+    if task_view.current_window == "detail" then
+        task_view.current_window = "list"
+        render_controller:render()
+        return
+    end
     render_controller:remove_view("task")
 end
 

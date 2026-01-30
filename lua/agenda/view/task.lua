@@ -116,13 +116,8 @@ function TaskView:clear_marks(bufnr)
 end
 
 function TaskView:destroy()
-    if self.current_window == "detail" then
-        TaskView:clear_marks(self.detail_bufnr)
-        self.current_window = "list"
-    elseif self.current_window == "list" then
-        vim.api.nvim_win_close(self.list_winnr, true)
-        vim.api.nvim_win_close(self.detail_winnr, true)
-    end
+    vim.api.nvim_win_close(self.list_winnr, true)
+    vim.api.nvim_win_close(self.detail_winnr, true)
 end
 
 return TaskView
