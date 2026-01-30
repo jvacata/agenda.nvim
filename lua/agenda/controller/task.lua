@@ -61,6 +61,11 @@ function TaskController:create_task(title)
 
     if task_view.current_line_index == nil then
         task_view.current_line_index = 0
+    else
+        local index = task_repository:get_index(task)
+        if index ~= nil then
+            task_view.current_line_index = index - 1
+        end
     end
 
     render_controller:render()

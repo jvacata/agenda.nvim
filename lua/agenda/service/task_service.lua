@@ -6,7 +6,7 @@ local file_utils = require('agenda.util.file')
 local string_utils = require('agenda.util.string')
 
 function TaskService:update_task(task)
-    if string_utils:is_valid_id(task.id) then
+    if not string_utils:is_valid_id(task.id) then
         error("Task must have a valid id to be updated")
     end
 

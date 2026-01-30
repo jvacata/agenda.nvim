@@ -13,6 +13,13 @@ function FileUtils:save_file(path, filename, content)
     file:close()
 end
 
+function FileUtils:remove_files_from_folder(path)
+    local files = self:get_dir_files(path)
+    for _, file in ipairs(files) do
+        os.remove(file)
+    end
+end
+
 function FileUtils:remove_file(path, filename)
     local filepath = path .. "/" .. filename
     os.remove(filepath)
