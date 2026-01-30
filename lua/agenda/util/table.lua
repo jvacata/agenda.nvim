@@ -1,6 +1,6 @@
 local TableUtils = {}
 
-function TableUtils:deepCopy(original)
+function TableUtils:deep_copy_array(original)
     local copy = {}
     for k, v in ipairs(original) do
         if type(v) == "table" then

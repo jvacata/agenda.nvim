@@ -6,19 +6,7 @@ local file_utils = require('agenda.util.file')
 local string_utils = require('agenda.util.string')
 
 function TaskService:update_task(task)
-    local tasks = task_repository:get_all()
-    local updated = false
-    for index, existing in ipairs(tasks) do
-        if existing.id == task.id then
-            tasks[index] = task
-            updated = true
-            break
-        end
-    end
-    if not updated then
-        task_repository:add(task)
-    end
-
+    task_repository:add_or_update(task)
     file_utils:save_file(global_config.workspace_task_path, task.id, vim.json.encode(task))
 end
 
@@ -35,7 +23,7 @@ function TaskService:init_load_tasks()
         if type(data) ~= "table" or data.id == nil or not string_utils:is_valid_id(data.id) then
             goto continue
         end
-        task_repository:add(data)
+        task_repository:add_or_update(data)
         ::continue::
     end
 end

@@ -10,12 +10,12 @@ function InputController:init()
 end
 
 function InputController:init_view(params)
-    input_view:init()
-    self:bind_mapping()
-
     self.callback = params.callback
     input_model.orig_value = params.data
     input_model.input = params.data
+
+    input_view:init()
+    self:bind_mapping()
 end
 
 function InputController:bind_mapping()

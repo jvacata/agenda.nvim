@@ -9,13 +9,13 @@ InputView.winnr = nil
 
 function InputView:init()
     InputView.bufnr, InputView.winnr = window_util:get_win("agenda_task_edit", window_config:task_edit_window())
+    window_util:clean_buffer(self.bufnr)
+    vim.api.nvim_set_option_value('modifiable', true, { buf = self.bufnr })
+    vim.api.nvim_buf_set_lines(self.bufnr, 0, 1, false, { input_model.input })
 end
 
 function InputView:render()
     window_util:show_cursor()
-    window_util:clean_buffer(self.bufnr)
-    vim.api.nvim_set_option_value('modifiable', true, { buf = self.bufnr })
-    vim.api.nvim_buf_set_lines(self.bufnr, 0, 1, false, { input_model.input })
 end
 
 function InputView:destroy()
