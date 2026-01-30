@@ -9,19 +9,25 @@ local window_config = require('agenda.config.window')
 TaskView.current_line_index = 0
 TaskView.current_detail_line_index = 0
 
+-- @type number
 TaskView.list_bufnr = nil
+-- @type number
 TaskView.list_winnr = nil
 
+-- @type number
 TaskView.detail_bufnr = nil
+-- @type number
 TaskView.detail_winnr = nil
 
+-- @type number
 TaskView.edit_bufnr = nil
+-- @type number
 TaskView.edit_winnr = nil
 
 ---@alias WindowType "list"|"detail"|"edit"
 
 -- @type WindowType
-local current_window = "list"
+TaskView.current_window = "list"
 
 function TaskView:init()
     TaskView.list_bufnr, TaskView.list_winnr = window_util:get_win("agenda_task_list", window_config:task_list_window())
@@ -30,6 +36,7 @@ function TaskView:init()
 end
 
 function TaskView:render()
+    vim.api.nvim_set_option_value('guicursor', 'n-v-i:NoCursor', {})
     TaskView:render_task_list()
     TaskView:render_task_detail()
 end
@@ -58,7 +65,9 @@ function TaskView:render_task_detail()
     vim.api.nvim_buf_set_lines(self.detail_bufnr, 1, 2, false, { "Title: " .. task.title })
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 
-    TaskView:highlight_list_line(self.list_bufnr)
+    if self.current_window == "detail" then
+        self:highlight_detail_line(self.detail_bufnr)
+    end
 end
 
 function TaskView:highlight_list_line(bufnr)
@@ -89,30 +98,12 @@ function TaskView:clear_marks(bufnr)
 end
 
 function TaskView:close()
-    if current_window == "detail" then
+    if self.current_window == "detail" then
         TaskView:clear_marks(self.detail_bufnr)
-        current_window = "list"
-    elseif current_window == "list" then
+        self.current_window = "list"
+    elseif self.current_window == "list" then
         vim.api.nvim_win_close(self.list_winnr, true)
         vim.api.nvim_win_close(self.detail_winnr, true)
-    end
-end
-
-function TaskView:do_action(list_bufnr, detail_bufnr)
-    if current_window == "list" then
-        current_window = "detail"
-        self.current_detail_line_index = 1
-        TaskView:highlight_detail_line(detail_bufnr)
-    elseif current_window == "detail" then
-        local data = ""
-        local task = task_repository:get_all()[self.current_line_index + 1]
-        if self.current_detail_line_index == 1 then
-            data = task.title
-        else
-            return
-        end
-
-        TaskView:show_edit(data, list_bufnr, detail_bufnr)
     end
 end
 

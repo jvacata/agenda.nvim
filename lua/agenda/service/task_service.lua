@@ -5,16 +5,16 @@ local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
 
 function TaskService:update_task(task)
-    if not task_repository.exists(task) then
-        task_repository.add(task)
+    if not task_repository:exists(task) then
+        task_repository:add(task)
     end
 
-    file_utils.save_file(global_config.tasks_path, task.id, vim.json.encode(task))
+    file_utils:save_file(global_config.tasks_path, task.id, vim.json.encode(task))
 end
 
 function TaskService:delete_task(task)
-    task_repository.remove(task)
-    file_utils.remove_file(global_config.tasks_path, task.id)
+    task_repository:remove(task)
+    file_utils:remove_file(global_config.tasks_path, task.id)
 end
 
 function TaskService:init_load_tasks()

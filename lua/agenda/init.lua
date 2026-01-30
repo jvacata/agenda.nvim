@@ -16,9 +16,12 @@ M.setup = function(opts)
 end
 
 M.init_instances = function()
+    vim.api.nvim_set_hl(0, "NoCursor", { fg = "#000000", bg = "#000000", blend = 100 })
+
     global_config:init()
     main_controller:init()
     task_controller:init()
+    input_controller:init()
 
     render_controller:init(
         {

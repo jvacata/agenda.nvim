@@ -1,31 +1,43 @@
 local InputController = {}
 
+local input_model = require("agenda.model.input")
 local input_view = require("agenda.view.input")
+local render_controller = require("agenda.controller.render")
 
 InputController.callback = nil
 
-function InputController:initialize(callback)
+function InputController:init(callback)
     InputController.callback = callback
-
-    InputController:set_edit_window_mapping()
 end
 
-function InputController:set_edit_window_mapping(bufnr, winnr, list_bufnr, detail_bufnr)
+function InputController:init_view(params)
+    input_view:init()
+    self:bind_mapping()
+    self.callback = params.callback
+    input_model.orig_value = params.data
+    input_model.input = params.data
+    vim.api.nvim_set_option_value('guicursor',
+        'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor', {})
+end
+
+function InputController:bind_mapping()
     vim.keymap.set('n', 'q', function() InputController:cancel_edit() end,
-        { buffer = true, silent = true })
+        { buffer = input_view.bufnr, silent = true })
     vim.keymap.set('n', '<CR>', function() InputController:close_edit() end,
-        { buffer = true, silent = true })
+        { buffer = input_view.bufnr, silent = true })
+    vim.keymap.set('i', '<CR>', function() vim.cmd("stopinsert") end,
+        { buffer = input_view.bufnr, silent = true })
 end
 
 function InputController:cancel_edit()
-    input_view.destroy()
-    InputController:callback()
+    render_controller:remove_view("input")
+    self.callback()
 end
 
 function InputController:close_edit()
     local value = InputController:get_value()
-    input_view.destroy()
-    InputController:callback(value)
+    render_controller:remove_view("input")
+    self.callback(value)
 end
 
 function InputController:get_value()

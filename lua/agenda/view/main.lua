@@ -8,8 +8,6 @@ function MainView:init()
 end
 
 function MainView:open(args)
-    vim.api.nvim_set_hl(0, "NoCursor", { fg = "#000000", bg = "#000000", blend = 100 })
-    vim.api.nvim_set_option_value('guicursor', 'n-v-i:NoCursor', {})
 
     if args == "tasks" then
         task_view.open()

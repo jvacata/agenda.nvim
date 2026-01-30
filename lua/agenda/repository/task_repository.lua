@@ -26,11 +26,12 @@ function TaskRepository:clear()
 end
 
 function TaskRepository:exists(task)
-    for _, existing_task in ipairs(TaskRepository:get_all()) do
+    for _, existing_task in ipairs(self:get_all()) do
         if existing_task.id == task.id then
-            break
+            return true
         end
     end
+    return false
 end
 
 return TaskRepository
