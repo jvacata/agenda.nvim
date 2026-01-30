@@ -8,12 +8,26 @@ function RenderController:init(view_config)
 end
 
 function RenderController:add_view(view_name, params)
+    if self:is_view_active(view_name) then
+        return
+    end
+
     table.insert(self.active_views, view_name)
     self:init_view(view_name, params)
     self:render()
 end
 
+function RenderController:is_view_active(view_name)
+    for _, v in ipairs(self.active_views) do
+        if v == view_name then
+            return true
+        end
+    end
+    return false
+end
+
 function RenderController:set_view(view_name, params)
+    self:destroy()
     self.active_views = {}
     table.insert(self.active_views, view_name)
     self:init_view(view_name, params)

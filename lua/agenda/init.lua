@@ -10,15 +10,16 @@ local main_view = require('agenda.view.main')
 local task_view = require('agenda.view.task')
 local input_view = require('agenda.view.input')
 
+local is_loaded = false
+
 M.setup = function(user_config)
+    global_config:init(user_config)
     M.create_commands()
-    M.init_instances(user_config)
 end
 
-M.init_instances = function(user_config)
+M.init_instances = function()
     vim.api.nvim_set_hl(0, "NoCursor", { fg = "#000000", bg = "#000000", blend = 100 })
 
-    global_config:init(user_config)
     main_controller:init()
     task_controller:init()
     input_controller:init()
@@ -34,6 +35,11 @@ end
 
 M.create_commands = function()
     vim.api.nvim_create_user_command("Agenda", function(opts)
+        if not is_loaded then
+            M.init_instances()
+            is_loaded = true
+        end
+
         main_controller:route(opts.args)
     end, {
         nargs = '*',

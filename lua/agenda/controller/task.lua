@@ -69,6 +69,10 @@ end
 
 function TaskController:remove_task()
     local task = task_service:get_current_selected_task()
+    if task == nil then
+        return
+    end
+
     task_service:delete_task(task)
     local task_count = task_repository:size()
 
@@ -81,7 +85,15 @@ function TaskController:remove_task()
     render_controller:render()
 end
 
-function TaskController:show_edit(data)
+function TaskController:show_edit()
+    local data = ""
+    local task = task_service:get_current_selected_task()
+    if task_view.current_detail_line_index == constants.TITLE_LINE_INDEX then
+        data = task.title
+    else
+        return
+    end
+
     local callback = function(new_value)
         if new_value == nil then
             return
@@ -102,19 +114,20 @@ end
 
 function TaskController:do_action()
     if task_view.current_window == "list" then
-        task_view.current_window = "detail"
-        task_view.current_detail_line_index = constants.TITLE_LINE_INDEX
+        self:edit_task()
     elseif task_view.current_window == "detail" then
-        local data = ""
-        local task = task_service:get_current_selected_task()
-        if task_view.current_detail_line_index == constants.TITLE_LINE_INDEX then
-            data = task.title
-        else
-            return
-        end
-        self:show_edit(data)
+        self:show_edit()
     end
     render_controller:render()
+end
+
+function TaskController:edit_task()
+    if task_repository:size() == 0 then
+        return
+    end
+
+    task_view.current_window = "detail"
+    task_view.current_detail_line_index = constants.TITLE_LINE_INDEX
 end
 
 return TaskController

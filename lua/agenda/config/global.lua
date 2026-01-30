@@ -14,6 +14,8 @@ function GlobalConfig:init(user_config)
     end
 
     self.user_config = vim.tbl_extend('force', self.user_config, user_config)
+
+    self.workspace_path = vim.fn.expand(self.workspace_path)
     self.workspace_task_path = self.user_config.workspace_path .. '/tasks'
     self.orig_cursor_value = vim.api.nvim_get_option_value('guicursor', {})
 end

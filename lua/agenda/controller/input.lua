@@ -6,8 +6,7 @@ local render_controller = require("agenda.controller.render")
 
 InputController.callback = nil
 
-function InputController:init(callback)
-    InputController.callback = callback
+function InputController:init()
 end
 
 function InputController:init_view(params)

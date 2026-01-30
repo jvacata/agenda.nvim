@@ -13,13 +13,16 @@ function ValueList:add(item)
 end
 
 function ValueList:remove(item)
+    if item == nil or type(item) ~= "table" or item.id == nil then
+        return
+    end
+
     for i, v in pairs(self.items) do
         if v.id == item.id then
             table.remove(self.items, i)
             return true
         end
     end
-    return false
 end
 
 function ValueList:get_all()
