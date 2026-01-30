@@ -67,15 +67,14 @@ function TaskController:move_down()
     render_controller:render()
 end
 
-function TaskController:remove_task(bufnr, detail_bufnr)
-    task_service.delete_task(task_service:get_current_selected_task())
+function TaskController:remove_task()
+    local task = task_service:get_current_selected_task()
+    task_service:delete_task(task)
     local task_count = task_repository:size()
     if task_view.current_line_index >= task_count then
         task_view.current_line_index = task_count - 1
     end
-
-    TaskController:draw_task_list(bufnr)
-    TaskController:draw_task_detail(detail_bufnr)
+    render_controller:render()
 end
 
 function TaskController:show_edit(data)
