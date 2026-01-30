@@ -6,6 +6,10 @@ local file_utils = require('agenda.util.file')
 local string_utils = require('agenda.util.string')
 
 function TaskService:update_task(task)
+    if string_utils:is_valid_id(task.id) then
+        error("Task must have a valid id to be updated")
+    end
+
     task_repository:add_or_update(task)
     file_utils:save_file(global_config.workspace_task_path, task.id, vim.json.encode(task))
 end
