@@ -1,6 +1,7 @@
 local TaskService = {}
 
 local task_repository = require('agenda.repository.task_repository')
+local task_view = require('agenda.view.task')
 local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
 
@@ -24,6 +25,10 @@ function TaskService:init_load_tasks()
         local data = file_utils:load_file(task_file)
         task_repository:add(data)
     end
+end
+
+function TaskService:get_current_selected_task()
+    return task_repository:get_all()[task_view.current_line_index + 1]
 end
 
 return TaskService

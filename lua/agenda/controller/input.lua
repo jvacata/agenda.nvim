@@ -13,11 +13,10 @@ end
 function InputController:init_view(params)
     input_view:init()
     self:bind_mapping()
+
     self.callback = params.callback
     input_model.orig_value = params.data
     input_model.input = params.data
-    vim.api.nvim_set_option_value('guicursor',
-        'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor', {})
 end
 
 function InputController:bind_mapping()

@@ -1,5 +1,7 @@
 local WindowUtils = {}
 
+local global_config = require('agenda.config.global')
+
 function WindowUtils:get_win(buf_name, win_cfg)
     local bufnr = WindowUtils:get_or_create_buffer(buf_name)
     vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
@@ -9,9 +11,7 @@ function WindowUtils:get_win(buf_name, win_cfg)
     vim.api.nvim_create_autocmd("WinClosed", {
         pattern = tostring(winnr),
         callback = function()
-            -- TODO preserve previous cursor state
-            vim.api.nvim_set_option_value('guicursor',
-                'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor', {})
+            self:show_cursor()
         end
     })
 
@@ -55,6 +55,14 @@ function WindowUtils:clean_buffer(bufnr)
     vim.api.nvim_set_option_value('modifiable', true, { buf = bufnr })
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
     vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
+end
+
+function WindowUtils:hide_cursor()
+    vim.api.nvim_set_option_value('guicursor', 'n-v-i:NoCursor', {})
+end
+
+function WindowUtils:show_cursor()
+    vim.api.nvim_set_option_value('guicursor', global_config.orig_cursor_value, {})
 end
 
 return WindowUtils

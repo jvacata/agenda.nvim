@@ -1,5 +1,7 @@
 local TaskView = {}
 
+local constants = require('agenda.constants')
+
 local window_util = require('agenda.util.window')
 local task_repository = require('agenda.repository.task_repository')
 
@@ -36,7 +38,7 @@ function TaskView:init()
 end
 
 function TaskView:render()
-    vim.api.nvim_set_option_value('guicursor', 'n-v-i:NoCursor', {})
+    window_util:hide_cursor()
     TaskView:render_task_list()
     TaskView:render_task_detail()
 end
@@ -61,8 +63,10 @@ function TaskView:render_task_detail()
 
     vim.api.nvim_set_option_value('modifiable', true, { buf = self.detail_bufnr })
     local task = task_repository:get_all()[self.current_line_index + 1]
-    vim.api.nvim_buf_set_lines(self.detail_bufnr, 0, 1, false, { "Id: " .. task.id })
-    vim.api.nvim_buf_set_lines(self.detail_bufnr, 1, 2, false, { "Title: " .. task.title })
+    vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.ID_LINE_INDEX, constants.ID_LINE_INDEX + 1, false,
+        { "Id: " .. task.id })
+    vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.TITLE_LINE_INDEX, constants.TITLE_LINE_INDEX + 1, false,
+        { "Title: " .. task.title })
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 
     if self.current_window == "detail" then
@@ -97,7 +101,7 @@ function TaskView:clear_marks(bufnr)
     end
 end
 
-function TaskView:close()
+function TaskView:destroy()
     if self.current_window == "detail" then
         TaskView:clear_marks(self.detail_bufnr)
         self.current_window = "list"

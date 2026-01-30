@@ -1,5 +1,6 @@
 local TaskController = {}
 
+local constants = require('agenda.constants')
 local task_service = require('agenda.service.task_service')
 local task_repository = require('agenda.repository.task_repository')
 local task_view = require('agenda.view.task')
@@ -21,7 +22,6 @@ function TaskController:bind_mapping()
     self:bind_mapping_buffer(task_view.detail_bufnr)
 end
 
--- @param bufnr number
 function TaskController:bind_mapping_buffer(bufnr)
     vim.keymap.set('n', 'j', function() TaskController:move_down() end,
         { buffer = bufnr, silent = true })
@@ -68,7 +68,7 @@ function TaskController:move_down()
 end
 
 function TaskController:remove_task(bufnr, detail_bufnr)
-    task_service.delete_task(task_repository:get_all()[task_view.current_line_index + 1])
+    task_service.delete_task(task_service:get_current_selected_task())
     local task_count = task_repository:size()
     if task_view.current_line_index >= task_count then
         task_view.current_line_index = task_count - 1
@@ -78,34 +78,33 @@ function TaskController:remove_task(bufnr, detail_bufnr)
     TaskController:draw_task_detail(detail_bufnr)
 end
 
-function TaskController:show_edit()
+function TaskController:show_edit(data)
     local callback = function(new_value)
         if new_value == nil then
             return
         end
 
-        local task = task_repository:get_all()[task_view.current_line_index + 1]
+        local task = task_service:get_current_selected_task()
         task.title = new_value
         task_service:update_task(task)
         render_controller:render()
     end
 
-    local task = task_repository:get_all()[task_view.current_line_index + 1]
-    render_controller:add_view("input", { callback = callback, data = task.title })
+    render_controller:add_view("input", { callback = callback, data = data })
 end
 
 function TaskController:close()
-    task_view:close()
+    task_view:destroy()
 end
 
 function TaskController:do_action()
     if task_view.current_window == "list" then
         task_view.current_window = "detail"
-        task_view.current_detail_line_index = 1
+        task_view.current_detail_line_index = constants.TITLE_LINE_INDEX
     elseif task_view.current_window == "detail" then
         local data = ""
-        local task = task_repository:get_all()[task_view.current_line_index + 1]
-        if task_view.current_detail_line_index == 1 then
+        local task = task_service:get_current_selected_task()
+        if task_view.current_detail_line_index == constants.TITLE_LINE_INDEX then
             data = task.title
         else
             return

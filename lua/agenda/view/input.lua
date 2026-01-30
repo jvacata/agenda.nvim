@@ -12,8 +12,7 @@ function InputView:init()
 end
 
 function InputView:render()
-    vim.api.nvim_set_option_value('guicursor',
-        'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor', {})
+    window_util:show_cursor()
     window_util:clean_buffer(self.bufnr)
     vim.api.nvim_set_option_value('modifiable', true, { buf = self.bufnr })
     vim.api.nvim_buf_set_lines(self.bufnr, 0, 1, false, { input_model.input })
