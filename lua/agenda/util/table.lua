@@ -2,7 +2,7 @@ local TableUtils = {}
 
 function TableUtils:deepCopy(original)
     local copy = {}
-    for k, v in pairs(original) do
+    for k, v in ipairs(original) do
         if type(v) == "table" then
             copy[k] = self:deepCopy(v)
         else

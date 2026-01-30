@@ -36,6 +36,11 @@ function TaskView:init()
     else
         self.current_line_index = nil
     end
+
+    self.current_detail_line_index = nil
+    self.current_window = "list"
+
+    vim.api.nvim_set_current_win(self.list_winnr)
 end
 
 function TaskView:render()
