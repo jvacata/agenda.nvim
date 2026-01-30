@@ -71,9 +71,13 @@ function TaskController:remove_task()
     local task = task_service:get_current_selected_task()
     task_service:delete_task(task)
     local task_count = task_repository:size()
-    if task_view.current_line_index >= task_count then
+
+    if task_count == 0 then
+        task_view.current_line_index = 0
+    elseif task_view.current_line_index >= task_count then
         task_view.current_line_index = task_count - 1
     end
+
     render_controller:render()
 end
 

@@ -37,16 +37,16 @@ function RenderController:init_view(view_name, params)
 end
 
 function RenderController:render()
-    for _, view_name in pairs(self.active_views) do
+    for _, view_name in ipairs(self.active_views) do
         local view_instance = self.view_config[view_name].view
         view_instance:render()
     end
 end
 
-function RenderController:close()
-    for _, view_name in pairs(self.active_views) do
+function RenderController:destroy()
+    for _, view_name in ipairs(self.active_views) do
         local view_instance = self.view_config[view_name].view
-        view_instance:close()
+        view_instance:destroy()
     end
 end
 

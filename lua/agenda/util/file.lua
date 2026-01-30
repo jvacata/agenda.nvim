@@ -3,7 +3,12 @@ local FileUtils = {}
 function FileUtils:save_file(path, filename, content)
     FileUtils:ensure_file_path(path .. "/")
 
-    local file = io.open(path .. "/" .. filename, "w")
+    local filepath = path .. "/" .. filename
+    local file, err = io.open(filepath, "w")
+    if not file then
+        error("Failed to open file for writing: " .. filepath .. " - " .. tostring(err))
+    end
+
     file:write(content)
     file:close()
 end
@@ -14,7 +19,10 @@ function FileUtils:remove_file(path, filename)
 end
 
 function FileUtils:load_file(file)
-    local f = io.open(file, "r")
+    local f, err = io.open(file, "r")
+    if not f then
+        error("Failed to open file for writing: " .. vim.inspect(file) .. " - " .. tostring(err))
+    end
     local content = f:read("*a")
     local data = vim.json.decode(content)
     f:close()
@@ -33,7 +41,7 @@ function FileUtils:ensure_file_path(filepath)
 end
 
 function FileUtils:ensure_dir(path)
-    os.execute('mkdir -p "' .. path .. '"')
+    vim.fn.mkdir(path, "p")
 end
 
 return FileUtils

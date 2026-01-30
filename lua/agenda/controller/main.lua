@@ -14,8 +14,6 @@ function MainController:route(args)
     else
         render_controller:set_view("main")
     end
-
-    render_controller:render()
 end
 
 return MainController
