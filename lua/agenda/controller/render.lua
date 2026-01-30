@@ -69,7 +69,7 @@ function RenderController:render()
 end
 
 function RenderController:destroy()
-    local active_views_copy = table_utils:deepCopy(self.active_views)
+    local active_views_copy = table_utils:deep_copy_array(self.active_views)
 
     for _, view_name in ipairs(active_views_copy) do
         self:remove_view(view_name, false)
