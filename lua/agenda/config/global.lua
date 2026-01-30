@@ -1,17 +1,16 @@
 local GlobalConfig = {}
 
-GlobalConfig.path = ''
-GlobalConfig.tasks_path = ''
+GlobalConfig.user_config = {
+    workspace_path = vim.fn.expand('~/.local/share/agenda.nvim'),
+}
+
+GlobalConfig.workspace_task_path = ''
 GlobalConfig.ns = vim.api.nvim_create_namespace("agenda")
 GlobalConfig.orig_cursor_value = ''
 
-function GlobalConfig:set_paths(path)
-    self.path = path
-    self.tasks_path = GlobalConfig.path .. '/tasks'
-end
-
-function GlobalConfig:init()
-    self:set_paths(vim.fn.expand('~/.local/share/agenda.nvim'))
+function GlobalConfig:init(user_config)
+    self.user_config = vim.tbl_extend('force', self.user_config, user_config)
+    self.workspace_task_path = self.user_config.workspace_path .. '/tasks'
     self.orig_cursor_value = vim.api.nvim_get_option_value('guicursor', {})
 end
 

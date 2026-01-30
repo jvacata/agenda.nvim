@@ -10,15 +10,15 @@ local main_view = require('agenda.view.main')
 local task_view = require('agenda.view.task')
 local input_view = require('agenda.view.input')
 
-M.setup = function(opts)
+M.setup = function(user_config)
     M.create_commands()
-    M.init_instances()
+    M.init_instances(user_config)
 end
 
-M.init_instances = function()
+M.init_instances = function(user_config)
     vim.api.nvim_set_hl(0, "NoCursor", { fg = "#000000", bg = "#000000", blend = 100 })
 
-    global_config:init()
+    global_config:init(user_config)
     main_controller:init()
     task_controller:init()
     input_controller:init()

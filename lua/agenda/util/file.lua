@@ -1,9 +1,10 @@
 local FileUtils = {}
 
 function FileUtils:save_file(path, filename, content)
-    FileUtils:ensure_file_path(path)
+    FileUtils:ensure_file_path(path .. "/")
 
     local file = io.open(path .. "/" .. filename, "w")
+    print(path)
     file:write(content)
     file:close()
 end
@@ -26,6 +27,7 @@ function FileUtils:get_dir_files(dir)
 end
 
 function FileUtils:ensure_file_path(filepath)
+    print("Ensuring file path for: " .. filepath)
     local dir = filepath:match("(.*/)")
     if dir then
         FileUtils:ensure_dir(dir)
@@ -33,6 +35,7 @@ function FileUtils:ensure_file_path(filepath)
 end
 
 function FileUtils:ensure_dir(path)
+    print("Ensuring directory: " .. path)
     os.execute('mkdir -p "' .. path .. '"')
 end
 
