@@ -21,11 +21,6 @@ TaskView.detail_bufnr = nil
 -- @type number
 TaskView.detail_winnr = nil
 
--- @type number
-TaskView.edit_bufnr = nil
--- @type number
-TaskView.edit_winnr = nil
-
 ---@alias WindowType "list"|"detail"|"edit"
 
 -- @type WindowType
@@ -75,9 +70,7 @@ function TaskView:render_task_detail()
         { "Title: " .. task.title })
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 
-    if self.current_window == "detail" then
-        self:highlight_detail_line(self.detail_bufnr)
-    end
+    self:highlight_detail_line(self.detail_bufnr)
 end
 
 function TaskView:highlight_list_line(bufnr)
@@ -95,13 +88,14 @@ function TaskView:highlight_list_line(bufnr)
 end
 
 function TaskView:highlight_detail_line(bufnr)
-    if self.current_detail_line_index == nil then
+    self:clear_marks(bufnr)
+
+    if self.current_detail_line_index == nil or self.current_window ~= "detail" then
         return
     end
 
-    TaskView:clear_marks(bufnr)
     local len = #(vim.api.nvim_buf_get_lines(bufnr, self.current_detail_line_index, self.current_detail_line_index + 1, false)[1])
-    TaskView:highlight_line(bufnr, self.current_detail_line_index, len)
+    self:highlight_line(bufnr, self.current_detail_line_index, len)
 end
 
 function TaskView:highlight_line(bufnr, line_index, len)

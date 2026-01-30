@@ -146,10 +146,10 @@ function TaskController:do_action()
 
     if task_view.current_window == "list" then
         self:edit_task()
+        render_controller:render()
     elseif task_view.current_window == "detail" then
         self:show_edit()
     end
-    render_controller:render()
 end
 
 function TaskController:edit_task()
