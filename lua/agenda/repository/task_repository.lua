@@ -16,6 +16,10 @@ function TaskRepository:get_all()
     return task_list:get_all()
 end
 
+function TaskRepository:get_index(task)
+    return task_list:get_index(task)
+end
+
 function TaskRepository:size()
     return #task_list:get_all()
 end

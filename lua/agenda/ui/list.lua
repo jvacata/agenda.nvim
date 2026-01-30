@@ -40,6 +40,16 @@ function ValueList:get_all()
     return self.items
 end
 
+function ValueList:get_index(item)
+    local items = self:get_all()
+    for index, existing in ipairs(items) do
+        if existing.id == item.id then
+            return index
+        end
+    end
+    return nil
+end
+
 function ValueList:clear()
     self.items = {}
 end
