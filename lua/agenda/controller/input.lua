@@ -34,6 +34,7 @@ end
 
 function InputController:close_edit()
     local value = InputController:get_value()
+    print("InputController:close_edit value=" .. value)
     render_controller:remove_view("input")
     self.callback(value)
 end
