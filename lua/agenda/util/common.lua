@@ -1,6 +1,6 @@
-local M = {}
+local CommonUtils = {}
 
-M.generate_uuid_v4 = function()
+function CommonUtils:generate_uuid_v4()
     local random = math.random
     local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     return string.gsub(template, '[xy]', function(c)
@@ -9,4 +9,4 @@ M.generate_uuid_v4 = function()
     end)
 end
 
-return M
+return CommonUtils

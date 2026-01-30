@@ -8,18 +8,32 @@ function ValueList:new()
     return instance
 end
 
-function ValueList:add(item)
-    table.insert(self.items, item)
+function ValueList:add_or_update(item)
+    local items = self:get_all()
+    local updated = false
+    for index, existing in ipairs(items) do
+        if existing.id == item.id then
+            items[index] = item
+            updated = true
+            break
+        end
+    end
+    if not updated then
+        table.insert(self.items, item)
+    end
 end
 
 function ValueList:remove(item)
+    if item == nil or type(item) ~= "table" or item.id == nil then
+        return
+    end
+
     for i, v in pairs(self.items) do
-        if v == item then
+        if v.id == item.id then
             table.remove(self.items, i)
             return true
         end
     end
-    return false
 end
 
 function ValueList:get_all()
