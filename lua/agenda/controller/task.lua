@@ -17,11 +17,11 @@ function TaskController:init_view()
 end
 
 function TaskController:bind_mapping()
-    self:bind_mapping_buffer(task_view.list_bufnr)
-    self:bind_mapping_buffer(task_view.detail_bufnr)
+    self:bind_list_mapping(task_view.list_bufnr)
+    self:bind_detail_mapping(task_view.detail_bufnr)
 end
 
-function TaskController:bind_mapping_buffer(bufnr)
+function TaskController:bind_list_mapping(bufnr)
     vim.keymap.set('n', 'j', function() TaskController:move_down() end,
         { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'h', '<Nop>', { buffer = bufnr, silent = true })
@@ -33,6 +33,19 @@ function TaskController:bind_mapping_buffer(bufnr)
         { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'dd', function() TaskController:remove_task() end,
         { buffer = bufnr, silent = true })
+    vim.keymap.set('n', 'q', function() TaskController:close() end,
+        { buffer = bufnr, silent = true })
+    vim.keymap.set('n', '<CR>', function() TaskController:do_action() end,
+        { buffer = bufnr, silent = true })
+end
+
+function TaskController:bind_detail_mapping(bufnr)
+    vim.keymap.set('n', 'j', '<Nop>',
+        { buffer = bufnr, silent = true })
+    vim.keymap.set('n', 'h', '<Nop>', { buffer = bufnr, silent = true })
+    vim.keymap.set('n', 'k', '<Nop>', { buffer = bufnr, silent = true })
+    vim.keymap.set('n', 'l', '<Nop>', { buffer = bufnr, silent = true })
+    vim.keymap.set('n', 'i', '<Nop>', { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'q', function() TaskController:close() end,
         { buffer = bufnr, silent = true })
     vim.keymap.set('n', '<CR>', function() TaskController:do_action() end,
