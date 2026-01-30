@@ -47,7 +47,7 @@ function TaskView:render_task_list()
     window_util:clean_buffer(self.list_bufnr)
 
     vim.api.nvim_set_option_value('modifiable', true, { buf = self.list_bufnr })
-    for i, task in pairs(task_repository:get_all()) do
+    for i, task in ipairs(task_repository:get_all()) do
         vim.api.nvim_buf_set_lines(self.list_bufnr, i - 1, i, false, { task.title })
     end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.list_bufnr })

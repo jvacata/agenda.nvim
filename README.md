@@ -20,7 +20,7 @@ or with custom options, with defaults as following
 ```
     {
         "jvacata/agenda.nvim",
-        config = {
+        opts = {
             workspace_path = '~/.local/share/agenda.nvim' -- path where all agenda data will be stored
         }
     },

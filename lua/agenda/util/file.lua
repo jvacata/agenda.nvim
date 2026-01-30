@@ -21,7 +21,7 @@ end
 function FileUtils:load_file(file)
     local f, err = io.open(file, "r")
     if not f then
-        error("Failed to open file for writing: " .. vim.inspect(file) .. " - " .. tostring(err))
+        error("Failed to open file for reading: " .. vim.inspect(file) .. " - " .. tostring(err))
     end
     local content = f:read("*a")
     local data = vim.json.decode(content)
