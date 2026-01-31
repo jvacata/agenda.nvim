@@ -1,6 +1,6 @@
 local TaskService = {}
 
-local app_state = require('agenda.model.app_state')
+local task_store = require('agenda.model.task_store')
 local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
 local string_utils = require('agenda.util.string')
@@ -21,7 +21,7 @@ function TaskService:delete_task(task)
     file_utils:remove_file(global_config.workspace_task_path, task.id)
 end
 
----Load all tasks from disk into AppState
+---Load all tasks from disk into TaskStore
 function TaskService:init_load_tasks()
     local tasks = {}
     local task_files = file_utils:get_dir_files(global_config.workspace_task_path)
@@ -31,7 +31,7 @@ function TaskService:init_load_tasks()
             table.insert(tasks, data)
         end
     end
-    app_state:init_with_tasks(tasks)
+    task_store:init_with_tasks(tasks)
 end
 
 return TaskService

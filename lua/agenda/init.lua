@@ -5,7 +5,8 @@ local main_controller = require('agenda.controller.main')
 local render_controller = require('agenda.controller.render')
 local input_controller = require('agenda.controller.input')
 local task_controller = require('agenda.controller.task')
-local app_state = require('agenda.model.app_state')
+local task_store = require('agenda.model.task_store')
+local ui_state = require('agenda.model.ui_state')
 
 local main_view = require('agenda.view.main')
 local task_view = require('agenda.view.task')
@@ -21,8 +22,9 @@ end
 M.init_instances = function()
     vim.api.nvim_set_hl(0, "NoCursor", { fg = "#000000", bg = "#000000", blend = 100 })
 
-    -- Reset AppState on initialization
-    app_state:reset()
+    -- Reset stores on initialization
+    task_store:reset()
+    ui_state:reset()
 
     main_controller:init()
     task_controller:init()

@@ -92,7 +92,8 @@ function TaskView:highlight_detail_line(view_data)
         return
     end
 
-    local line = vim.api.nvim_buf_get_lines(self.detail_bufnr, view_data.detail_index, view_data.detail_index + 1, false)[1]
+    local line = vim.api.nvim_buf_get_lines(self.detail_bufnr, view_data.detail_index, view_data.detail_index + 1, false)
+        [1]
     if line then
         local len = #line
         self:highlight_line(self.detail_bufnr, view_data.detail_index, len)
