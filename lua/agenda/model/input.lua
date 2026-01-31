@@ -34,36 +34,10 @@ function InputModel:get_value()
     return self._value
 end
 
----Set current value
----@param value string
-function InputModel:set_value(value)
-    self._value = value
-end
-
----Get original value
----@return string
-function InputModel:get_orig_value()
-    return self._orig_value
-end
-
----Check if input is active
----@return boolean
-function InputModel:is_active()
-    return self._is_active
-end
-
 ---Get callback function
 ---@return function|nil
 function InputModel:get_callback()
     return self._callback
-end
-
----Execute callback with value
----@param value string|nil
-function InputModel:execute_callback(value)
-    if self._callback then
-        self._callback(value)
-    end
 end
 
 return InputModel

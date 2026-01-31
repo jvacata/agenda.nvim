@@ -21,23 +21,6 @@ function Task.create(title, status)
     }
 end
 
----Validate a task object
----@param task any
----@return boolean is_valid
----@return string? error_message
-function Task.is_valid(task)
-    if type(task) ~= "table" then
-        return false, "Task must be a table"
-    end
-    if type(task.id) ~= "string" or task.id == "" then
-        return false, "Task must have a valid id"
-    end
-    if type(task.title) ~= "string" then
-        return false, "Task must have a title"
-    end
-    return true, nil
-end
-
 ---Create a copy of task with updated title
 ---@param task Task
 ---@param new_title string
@@ -47,18 +30,6 @@ function Task.with_title(task, new_title)
         id = task.id,
         title = new_title,
         status = task.status
-    }
-end
-
----Create a copy of task with updated status
----@param task Task
----@param new_status TaskStatus
----@return Task
-function Task.with_status(task, new_status)
-    return {
-        id = task.id,
-        title = task.title,
-        status = new_status
     }
 end
 

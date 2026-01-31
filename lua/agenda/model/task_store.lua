@@ -27,18 +27,6 @@ function TaskStore:get_task(index)
     return self._tasks[index]
 end
 
----Get task by id
----@param id string
----@return Task|nil
-function TaskStore:get_task_by_id(id)
-    for _, task in ipairs(self._tasks) do
-        if task.id == id then
-            return task
-        end
-    end
-    return nil
-end
-
 ---Add a new task
 ---@param task Task
 function TaskStore:add_task(task)
