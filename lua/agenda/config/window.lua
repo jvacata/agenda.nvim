@@ -36,4 +36,16 @@ function WindowConfig:task_edit_window()
     }
 end
 
+function WindowConfig:kanban_window()
+    return {
+        relative = 'editor',
+        width = math.floor(vim.o.columns * 0.8),
+        height = math.floor(vim.o.lines * 0.8),
+        row = math.floor(vim.o.lines * 0.1),
+        col = math.floor(vim.o.columns * 0.1),
+        style = 'minimal',
+        border = 'rounded',
+    }
+end
+
 return WindowConfig
