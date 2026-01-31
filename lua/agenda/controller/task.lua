@@ -3,7 +3,7 @@ local TaskController = {}
 local constants = require('agenda.constants')
 local task_service = require('agenda.service.task_service')
 local task_store = require('agenda.model.task_store')
-local ui_state = require('agenda.model.ui_state')
+local task_ui_state = require('agenda.model.task_ui_state')
 local Task = require('agenda.model.task')
 local task_view = require('agenda.view.task')
 local render_controller = require('agenda.controller.render')
@@ -15,7 +15,7 @@ function TaskController:init_view()
     task_service:init_load_tasks()
     -- Initialize selection if we have tasks
     if task_store:get_task_count() > 0 then
-        ui_state:set_selected_index(0)
+        task_ui_state:set_selected_index(0)
     end
     task_view:init()
     self:bind_mapping()
@@ -60,7 +60,7 @@ end
 ---Get currently selected task
 ---@return Task|nil
 function TaskController:get_selected_task()
-    local index = ui_state:get_selected_index()
+    local index = task_ui_state:get_selected_index()
     if index == nil then
         return nil
     end
@@ -72,9 +72,9 @@ end
 function TaskController:get_view_data()
     return {
         tasks = task_store:get_tasks(),
-        selected_index = ui_state:get_selected_index(),
-        active_window = ui_state:get_active_window(),
-        detail_index = ui_state:get_detail_index()
+        selected_index = task_ui_state:get_selected_index(),
+        active_window = task_ui_state:get_active_window(),
+        detail_index = task_ui_state:get_detail_index()
     }
 end
 
@@ -86,43 +86,43 @@ function TaskController:create_task(title)
     -- Select the newly created task
     local index = task_store:get_task_index(task.id)
     if index ~= nil then
-        ui_state:set_selected_index(index)
+        task_ui_state:set_selected_index(index)
     end
 
     render_controller:render()
 end
 
 function TaskController:move_up()
-    local selected = ui_state:get_selected_index()
+    local selected = task_ui_state:get_selected_index()
     if selected == nil then
         return
     end
 
-    if ui_state:get_active_window() == "list" then
+    if task_ui_state:get_active_window() == "list" then
         if selected > 0 then
-            ui_state:set_selected_index(selected - 1)
+            task_ui_state:set_selected_index(selected - 1)
         end
     end
     render_controller:render()
 end
 
 function TaskController:move_down()
-    local selected = ui_state:get_selected_index()
+    local selected = task_ui_state:get_selected_index()
     if selected == nil then
         return
     end
 
-    if ui_state:get_active_window() == "list" then
+    if task_ui_state:get_active_window() == "list" then
         local task_count = task_store:get_task_count()
         if selected < task_count - 1 then
-            ui_state:set_selected_index(selected + 1)
+            task_ui_state:set_selected_index(selected + 1)
         end
     end
     render_controller:render()
 end
 
 function TaskController:remove_task()
-    if ui_state:get_active_window() ~= "list" or ui_state:get_selected_index() == nil then
+    if task_ui_state:get_active_window() ~= "list" or task_ui_state:get_selected_index() == nil then
         return
     end
 
@@ -136,11 +136,11 @@ function TaskController:remove_task()
 
     -- Adjust selected index if needed
     local task_count = task_store:get_task_count()
-    local selected = ui_state:get_selected_index()
+    local selected = task_ui_state:get_selected_index()
     if task_count == 0 then
-        ui_state:set_selected_index(nil)
+        task_ui_state:set_selected_index(nil)
     elseif selected ~= nil and selected >= task_count then
-        ui_state:set_selected_index(task_count - 1)
+        task_ui_state:set_selected_index(task_count - 1)
     end
 
     render_controller:render()
@@ -154,7 +154,7 @@ function TaskController:show_edit()
         return
     end
 
-    if ui_state:get_detail_index() == constants.TITLE_LINE_INDEX then
+    if task_ui_state:get_detail_index() == constants.TITLE_LINE_INDEX then
         data = task.title
     else
         return
@@ -178,8 +178,8 @@ function TaskController:show_edit()
 end
 
 function TaskController:close()
-    if ui_state:get_active_window() == "detail" then
-        ui_state:set_active_window("list")
+    if task_ui_state:get_active_window() == "detail" then
+        task_ui_state:set_active_window("list")
         render_controller:render()
         return
     end
@@ -187,14 +187,14 @@ function TaskController:close()
 end
 
 function TaskController:do_action()
-    if ui_state:get_selected_index() == nil then
+    if task_ui_state:get_selected_index() == nil then
         return
     end
 
-    if ui_state:get_active_window() == "list" then
+    if task_ui_state:get_active_window() == "list" then
         self:edit_task()
         render_controller:render()
-    elseif ui_state:get_active_window() == "detail" then
+    elseif task_ui_state:get_active_window() == "detail" then
         self:show_edit()
     end
 end
@@ -204,8 +204,8 @@ function TaskController:edit_task()
         return
     end
 
-    ui_state:set_active_window("detail")
-    ui_state:set_detail_index(constants.TITLE_LINE_INDEX)
+    task_ui_state:set_active_window("detail")
+    task_ui_state:set_detail_index(constants.TITLE_LINE_INDEX)
 end
 
 return TaskController

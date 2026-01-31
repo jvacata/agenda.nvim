@@ -6,7 +6,7 @@ local render_controller = require('agenda.controller.render')
 local input_controller = require('agenda.controller.input')
 local task_controller = require('agenda.controller.task')
 local task_store = require('agenda.model.task_store')
-local ui_state = require('agenda.model.ui_state')
+local task_ui_state = require('agenda.model.task_ui_state')
 
 local main_view = require('agenda.view.main')
 local task_view = require('agenda.view.task')
@@ -24,7 +24,7 @@ M.init_instances = function()
 
     -- Reset stores on initialization
     task_store:reset()
-    ui_state:reset()
+    task_ui_state:reset()
 
     main_controller:init()
     task_controller:init()
