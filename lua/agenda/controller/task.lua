@@ -2,9 +2,10 @@ local TaskController = {}
 
 local constants = require('agenda.constants')
 local task_service = require('agenda.service.task_service')
-local task_repository = require('agenda.repository.task_repository')
+local task_store = require('agenda.model.task_store')
+local task_ui_state = require('agenda.model.task_ui_state')
+local Task = require('agenda.model.task')
 local task_view = require('agenda.view.task')
-local common_util = require('agenda.util.common')
 local render_controller = require('agenda.controller.render')
 
 function TaskController:init()
@@ -12,6 +13,10 @@ end
 
 function TaskController:init_view()
     task_service:init_load_tasks()
+    -- Initialize selection if we have tasks
+    if task_store:get_task_count() > 0 then
+        task_ui_state:set_selected_index(0)
+    end
     task_view:init()
     self:bind_mapping()
 end
@@ -52,68 +57,90 @@ function TaskController:bind_detail_mapping(bufnr)
         { buffer = bufnr, silent = true })
 end
 
-function TaskController:create_task(title)
-    local task = {
-        id = common_util:generate_uuid_v4(),
-        title = title,
-    }
-    task_service:update_task(task)
+---Get currently selected task
+---@return Task|nil
+function TaskController:get_selected_task()
+    local index = task_ui_state:get_selected_index()
+    if index == nil then
+        return nil
+    end
+    return task_store:get_task(index + 1)
+end
 
-    if task_view.current_line_index == nil then
-        task_view.current_line_index = 0
-    else
-        local index = task_repository:get_index(task)
-        if index ~= nil then
-            task_view.current_line_index = index - 1
-        end
+---Get view data for rendering
+---@return {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+function TaskController:get_view_data()
+    return {
+        tasks = task_store:get_tasks(),
+        selected_index = task_ui_state:get_selected_index(),
+        active_window = task_ui_state:get_active_window(),
+        detail_index = task_ui_state:get_detail_index()
+    }
+end
+
+function TaskController:create_task(title)
+    local task = Task.create(title)
+    task_service:save_task(task)
+    task_store:add_task(task)
+
+    -- Select the newly created task
+    local index = task_store:get_task_index(task.id)
+    if index ~= nil then
+        task_ui_state:set_selected_index(index)
     end
 
     render_controller:render()
 end
 
 function TaskController:move_up()
-    if task_view.current_line_index == nil then
+    local selected = task_ui_state:get_selected_index()
+    if selected == nil then
         return
     end
 
-    if task_view.current_window == "list" then
-        if task_view.current_line_index > 0 then
-            task_view.current_line_index = task_view.current_line_index - 1
+    if task_ui_state:get_active_window() == "list" then
+        if selected > 0 then
+            task_ui_state:set_selected_index(selected - 1)
         end
     end
     render_controller:render()
 end
 
 function TaskController:move_down()
-    if task_view.current_line_index == nil then
+    local selected = task_ui_state:get_selected_index()
+    if selected == nil then
         return
     end
 
-    if task_view.current_window == "list" then
-        if task_view.current_line_index < task_repository:size() - 1 then
-            task_view.current_line_index = task_view.current_line_index + 1
+    if task_ui_state:get_active_window() == "list" then
+        local task_count = task_store:get_task_count()
+        if selected < task_count - 1 then
+            task_ui_state:set_selected_index(selected + 1)
         end
     end
     render_controller:render()
 end
 
 function TaskController:remove_task()
-    if task_view.current_window ~= "list" or task_view.current_line_index == nil then
+    if task_ui_state:get_active_window() ~= "list" or task_ui_state:get_selected_index() == nil then
         return
     end
 
-    local task = task_service:get_current_selected_task(task_view.current_line_index)
+    local task = self:get_selected_task()
     if task == nil then
         return
     end
 
     task_service:delete_task(task)
-    local task_count = task_repository:size()
+    task_store:remove_task(task.id)
 
+    -- Adjust selected index if needed
+    local task_count = task_store:get_task_count()
+    local selected = task_ui_state:get_selected_index()
     if task_count == 0 then
-        task_view.current_line_index = nil
-    elseif task_view.current_line_index >= task_count then
-        task_view.current_line_index = task_count - 1
+        task_ui_state:set_selected_index(nil)
+    elseif selected ~= nil and selected >= task_count then
+        task_ui_state:set_selected_index(task_count - 1)
     end
 
     render_controller:render()
@@ -121,13 +148,13 @@ end
 
 function TaskController:show_edit()
     local data = ""
-    local task = task_service:get_current_selected_task(task_view.current_line_index)
+    local task = self:get_selected_task()
 
     if task == nil then
         return
     end
 
-    if task_view.current_detail_line_index == constants.TITLE_LINE_INDEX then
+    if task_ui_state:get_detail_index() == constants.TITLE_LINE_INDEX then
         data = task.title
     else
         return
@@ -138,9 +165,12 @@ function TaskController:show_edit()
             return
         end
 
-        local task = task_service:get_current_selected_task(task_view.current_line_index)
-        task.title = new_value
-        task_service:update_task(task)
+        local current_task = self:get_selected_task()
+        if current_task then
+            local updated_task = Task.with_title(current_task, new_value)
+            task_service:save_task(updated_task)
+            task_store:update_task(updated_task)
+        end
         render_controller:render()
     end
 
@@ -148,8 +178,8 @@ function TaskController:show_edit()
 end
 
 function TaskController:close()
-    if task_view.current_window == "detail" then
-        task_view.current_window = "list"
+    if task_ui_state:get_active_window() == "detail" then
+        task_ui_state:set_active_window("list")
         render_controller:render()
         return
     end
@@ -157,25 +187,25 @@ function TaskController:close()
 end
 
 function TaskController:do_action()
-    if task_view.current_line_index == nil then
+    if task_ui_state:get_selected_index() == nil then
         return
     end
 
-    if task_view.current_window == "list" then
+    if task_ui_state:get_active_window() == "list" then
         self:edit_task()
         render_controller:render()
-    elseif task_view.current_window == "detail" then
+    elseif task_ui_state:get_active_window() == "detail" then
         self:show_edit()
     end
 end
 
 function TaskController:edit_task()
-    if task_repository:size() == 0 then
+    if task_store:get_task_count() == 0 then
         return
     end
 
-    task_view.current_window = "detail"
-    task_view.current_detail_line_index = constants.TITLE_LINE_INDEX
+    task_ui_state:set_active_window("detail")
+    task_ui_state:set_detail_index(constants.TITLE_LINE_INDEX)
 end
 
 return TaskController
