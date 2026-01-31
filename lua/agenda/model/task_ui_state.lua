@@ -1,3 +1,5 @@
+---@alias WindowType "list" | "detail"
+
 ---@class UIState
 ---@field private _selected_index number|nil
 ---@field private _detail_index number|nil
