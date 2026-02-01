@@ -1,8 +1,8 @@
 local KanbanController = {}
 
 local task_service = require('agenda.service.task_service')
-local kanban_store = require('agenda.model.kanban_store')
-local kanban_ui_state = require('agenda.model.kanban_ui_state')
+local kanban_store = require('agenda.model.entity.kanban_store')
+local kanban_ui_state = require('agenda.model.ui.kanban_ui_state')
 local kanban_view = require('agenda.view.kanban')
 local render_controller = require('agenda.controller.render')
 
@@ -13,7 +13,7 @@ function KanbanController:init_view()
     task_service:init_load_tasks()
 
     -- Load tasks into kanban store (all go to "open" column)
-    local task_store = require('agenda.model.task_store')
+    local task_store = require('agenda.model.entity.task_store')
     local tasks = task_store:get_tasks()
     kanban_store:init_with_tasks(tasks)
 

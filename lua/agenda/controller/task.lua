@@ -2,9 +2,9 @@ local TaskController = {}
 
 local constants = require('agenda.constants')
 local task_service = require('agenda.service.task_service')
-local task_store = require('agenda.model.task_store')
-local task_ui_state = require('agenda.model.task_ui_state')
-local Task = require('agenda.model.task')
+local task_store = require('agenda.model.entity.task_store')
+local task_ui_state = require('agenda.model.ui.task_ui_state')
+local Task = require('agenda.model.entity.task')
 local task_view = require('agenda.view.task')
 local render_controller = require('agenda.controller.render')
 

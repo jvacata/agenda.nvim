@@ -1,6 +1,6 @@
 local InputController = {}
 
-local input_model = require("agenda.model.input")
+local input_model = require("agenda.model.entity.input")
 local input_view = require("agenda.view.input")
 local render_controller = require("agenda.controller.render")
 

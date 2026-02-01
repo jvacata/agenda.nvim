@@ -1,6 +1,6 @@
 local TaskService = {}
 
-local task_store = require('agenda.model.task_store')
+local task_store = require('agenda.model.entity.task_store')
 local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
 local string_utils = require('agenda.util.string')
