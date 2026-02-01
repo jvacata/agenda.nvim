@@ -43,6 +43,18 @@ function TaskView:render_task_list(view_data)
     self:highlight_list_line(view_data)
 end
 
+---Get display text for task status
+---@param status TaskStatus|nil
+---@return string
+function TaskView:get_status_display(status)
+    local display = {
+        todo = "Open",
+        in_progress = "In Progress",
+        done = "Done"
+    }
+    return display[status] or "Open"
+end
+
 ---Render the task detail panel
 ---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
 function TaskView:render_task_detail(view_data)
@@ -58,6 +70,8 @@ function TaskView:render_task_detail(view_data)
             { "Id: " .. task.id })
         vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.TITLE_LINE_INDEX, constants.TITLE_LINE_INDEX + 1, false,
             { "Title: " .. task.title })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.STATE_LINE_INDEX, constants.STATE_LINE_INDEX + 1, false,
+            { "State: " .. self:get_status_display(task.status) })
     end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 

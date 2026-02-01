@@ -45,10 +45,11 @@ function TaskController:bind_list_mapping(bufnr)
 end
 
 function TaskController:bind_detail_mapping(bufnr)
-    vim.keymap.set('n', 'j', '<Nop>',
+    vim.keymap.set('n', 'j', function() TaskController:detail_move_down() end,
         { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'h', '<Nop>', { buffer = bufnr, silent = true })
-    vim.keymap.set('n', 'k', '<Nop>', { buffer = bufnr, silent = true })
+    vim.keymap.set('n', 'k', function() TaskController:detail_move_up() end,
+        { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'l', '<Nop>', { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'i', '<Nop>', { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'q', function() TaskController:close() end,
@@ -102,6 +103,9 @@ function TaskController:move_up()
         if selected > 0 then
             task_ui_state:set_selected_index(selected - 1)
         end
+    elseif task_ui_state:get_active_window() == "detail" then
+        self:detail_move_up()
+        return
     end
     render_controller:render()
 end
@@ -117,6 +121,33 @@ function TaskController:move_down()
         if selected < task_count - 1 then
             task_ui_state:set_selected_index(selected + 1)
         end
+    elseif task_ui_state:get_active_window() == "detail" then
+        self:detail_move_down()
+        return
+    end
+    render_controller:render()
+end
+
+function TaskController:detail_move_up()
+    local detail_index = task_ui_state:get_detail_index()
+    if detail_index == nil then
+        return
+    end
+
+    if detail_index > constants.TITLE_LINE_INDEX then
+        task_ui_state:set_detail_index(detail_index - 1)
+    end
+    render_controller:render()
+end
+
+function TaskController:detail_move_down()
+    local detail_index = task_ui_state:get_detail_index()
+    if detail_index == nil then
+        return
+    end
+
+    if detail_index < constants.STATE_LINE_INDEX then
+        task_ui_state:set_detail_index(detail_index + 1)
     end
     render_controller:render()
 end

@@ -17,7 +17,7 @@ function Task.create(title, status)
     return {
         id = common_util:generate_uuid_v4(),
         title = title or "",
-        status = status or "todo"
+        status = status or "Open"
     }
 end
 
