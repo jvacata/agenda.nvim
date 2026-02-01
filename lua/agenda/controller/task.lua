@@ -178,34 +178,51 @@ function TaskController:remove_task()
 end
 
 function TaskController:show_edit()
-    local data = ""
     local task = self:get_selected_task()
 
     if task == nil then
         return
     end
 
-    if task_ui_state:get_detail_index() == constants.TITLE_LINE_INDEX then
-        data = task.title
-    else
-        return
-    end
+    local detail_index = task_ui_state:get_detail_index()
 
-    local callback = function(new_value)
-        if new_value == nil then
-            return
+    if detail_index == constants.TITLE_LINE_INDEX then
+        local callback = function(new_value)
+            if new_value == nil then
+                return
+            end
+
+            local current_task = self:get_selected_task()
+            if current_task then
+                local updated_task = Task.with_title(current_task, new_value)
+                task_service:save_task(updated_task)
+                task_store:update_task(updated_task)
+            end
+            render_controller:render()
         end
 
-        local current_task = self:get_selected_task()
-        if current_task then
-            local updated_task = Task.with_title(current_task, new_value)
-            task_service:save_task(updated_task)
-            task_store:update_task(updated_task)
-        end
-        render_controller:render()
-    end
+        render_controller:add_view("input", { callback = callback, data = task.title })
+    elseif detail_index == constants.STATE_LINE_INDEX then
+        local callback = function(new_value)
+            if new_value == nil then
+                return
+            end
 
-    render_controller:add_view("input", { callback = callback, data = data })
+            local current_task = self:get_selected_task()
+            if current_task then
+                local updated_task = Task.with_status(current_task, new_value)
+                task_service:save_task(updated_task)
+                task_store:update_task(updated_task)
+            end
+            render_controller:render()
+        end
+
+        render_controller:add_view("input", {
+            callback = callback,
+            data = Task.get_status_options(),
+            mode = "select"
+        })
+    end
 end
 
 function TaskController:close()

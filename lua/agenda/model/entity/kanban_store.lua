@@ -66,14 +66,31 @@ function KanbanStore:get_task(column, index)
     return tasks[index]
 end
 
----Initialize with tasks (all tasks go to "open" column for now)
+---Map task status to kanban column
+---@param status string
+---@return KanbanColumn
+function KanbanStore:status_to_column(status)
+    local mapping = {
+        todo = "open",
+        in_progress = "in_progress",
+        done = "done"
+    }
+    return mapping[status] or "open"
+end
+
+---Initialize with tasks distributed by their status
 ---@param tasks Task[]
 function KanbanStore:init_with_tasks(tasks)
     self._columns = {
-        open = tasks or {},
+        open = {},
         in_progress = {},
         done = {}
     }
+
+    for _, task in ipairs(tasks or {}) do
+        local column = self:status_to_column(task.status)
+        table.insert(self._columns[column], task)
+    end
 end
 
 ---Reset all state

@@ -24,11 +24,13 @@ function WindowConfig:task_detail_window()
     }
 end
 
-function WindowConfig:task_edit_window()
+---@param height? number Window height (default 1)
+function WindowConfig:task_edit_window(height)
+    height = height or 1
     return {
         relative = 'editor',
         width = math.floor(40),
-        height = math.floor(1),
+        height = height,
         row = math.floor(vim.o.lines * 0.45),
         col = math.floor(vim.o.columns * 0.4),
         style = 'minimal',

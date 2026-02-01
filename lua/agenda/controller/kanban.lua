@@ -12,14 +12,17 @@ end
 function KanbanController:init_view()
     task_service:init_load_tasks()
 
-    -- Load tasks into kanban store (all go to "open" column)
+    -- Load tasks into kanban store distributed by status
     local task_store = require('agenda.model.entity.task_store')
     local tasks = task_store:get_tasks()
     kanban_store:init_with_tasks(tasks)
 
-    -- Initialize selection if we have tasks in open column
-    if kanban_store:get_task_count("open") > 0 then
+    -- Initialize selection to first task in current column
+    local selected_column = kanban_ui_state:get_selected_column()
+    if kanban_store:get_task_count(selected_column) > 0 then
         kanban_ui_state:set_selected_row(0)
+    else
+        kanban_ui_state:set_selected_row(nil)
     end
 
     kanban_view:init()
