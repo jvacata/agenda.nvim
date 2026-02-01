@@ -2,9 +2,9 @@ local TaskController = {}
 
 local constants = require('agenda.constants')
 local task_service = require('agenda.service.task_service')
-local task_store = require('agenda.model.task_store')
-local task_ui_state = require('agenda.model.task_ui_state')
-local Task = require('agenda.model.task')
+local task_store = require('agenda.model.entity.task_store')
+local task_ui_state = require('agenda.model.ui.task_ui_state')
+local Task = require('agenda.model.entity.task')
 local task_view = require('agenda.view.task')
 local render_controller = require('agenda.controller.render')
 
@@ -45,10 +45,11 @@ function TaskController:bind_list_mapping(bufnr)
 end
 
 function TaskController:bind_detail_mapping(bufnr)
-    vim.keymap.set('n', 'j', '<Nop>',
+    vim.keymap.set('n', 'j', function() TaskController:detail_move_down() end,
         { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'h', '<Nop>', { buffer = bufnr, silent = true })
-    vim.keymap.set('n', 'k', '<Nop>', { buffer = bufnr, silent = true })
+    vim.keymap.set('n', 'k', function() TaskController:detail_move_up() end,
+        { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'l', '<Nop>', { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'i', '<Nop>', { buffer = bufnr, silent = true })
     vim.keymap.set('n', 'q', function() TaskController:close() end,
@@ -102,6 +103,9 @@ function TaskController:move_up()
         if selected > 0 then
             task_ui_state:set_selected_index(selected - 1)
         end
+    elseif task_ui_state:get_active_window() == "detail" then
+        self:detail_move_up()
+        return
     end
     render_controller:render()
 end
@@ -117,6 +121,33 @@ function TaskController:move_down()
         if selected < task_count - 1 then
             task_ui_state:set_selected_index(selected + 1)
         end
+    elseif task_ui_state:get_active_window() == "detail" then
+        self:detail_move_down()
+        return
+    end
+    render_controller:render()
+end
+
+function TaskController:detail_move_up()
+    local detail_index = task_ui_state:get_detail_index()
+    if detail_index == nil then
+        return
+    end
+
+    if detail_index > constants.TITLE_LINE_INDEX then
+        task_ui_state:set_detail_index(detail_index - 1)
+    end
+    render_controller:render()
+end
+
+function TaskController:detail_move_down()
+    local detail_index = task_ui_state:get_detail_index()
+    if detail_index == nil then
+        return
+    end
+
+    if detail_index < constants.STATE_LINE_INDEX then
+        task_ui_state:set_detail_index(detail_index + 1)
     end
     render_controller:render()
 end
@@ -147,34 +178,51 @@ function TaskController:remove_task()
 end
 
 function TaskController:show_edit()
-    local data = ""
     local task = self:get_selected_task()
 
     if task == nil then
         return
     end
 
-    if task_ui_state:get_detail_index() == constants.TITLE_LINE_INDEX then
-        data = task.title
-    else
-        return
-    end
+    local detail_index = task_ui_state:get_detail_index()
 
-    local callback = function(new_value)
-        if new_value == nil then
-            return
+    if detail_index == constants.TITLE_LINE_INDEX then
+        local callback = function(new_value)
+            if new_value == nil then
+                return
+            end
+
+            local current_task = self:get_selected_task()
+            if current_task then
+                local updated_task = Task.with_title(current_task, new_value)
+                task_service:save_task(updated_task)
+                task_store:update_task(updated_task)
+            end
+            render_controller:render()
         end
 
-        local current_task = self:get_selected_task()
-        if current_task then
-            local updated_task = Task.with_title(current_task, new_value)
-            task_service:save_task(updated_task)
-            task_store:update_task(updated_task)
-        end
-        render_controller:render()
-    end
+        render_controller:add_view("input", { callback = callback, data = task.title })
+    elseif detail_index == constants.STATE_LINE_INDEX then
+        local callback = function(new_value)
+            if new_value == nil then
+                return
+            end
 
-    render_controller:add_view("input", { callback = callback, data = data })
+            local current_task = self:get_selected_task()
+            if current_task then
+                local updated_task = Task.with_status(current_task, new_value)
+                task_service:save_task(updated_task)
+                task_store:update_task(updated_task)
+            end
+            render_controller:render()
+        end
+
+        render_controller:add_view("input", {
+            callback = callback,
+            data = Task.get_status_options(),
+            mode = "select"
+        })
+    end
 end
 
 function TaskController:close()

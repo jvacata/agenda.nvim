@@ -33,4 +33,22 @@ function Task.with_title(task, new_title)
     }
 end
 
+---Create a copy of task with updated status
+---@param task Task
+---@param new_status TaskStatus
+---@return Task
+function Task.with_status(task, new_status)
+    return {
+        id = task.id,
+        title = task.title,
+        status = new_status
+    }
+end
+
+---Get available status options
+---@return TaskStatus[]
+function Task.get_status_options()
+    return { "todo", "in_progress", "done" }
+end
+
 return Task
