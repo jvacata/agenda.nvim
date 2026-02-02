@@ -22,7 +22,7 @@ or with custom options, with defaults as following
         "jvacata/agenda.nvim",
         opts = {
             workspace_path = '~/.local/share/agenda.nvim' -- path where all agenda data will be stored,
-            autosave = true -- trigger autosave after every change (e.g. git commit + push, if type of autosave is 'git')
+            autosave = false -- trigger autosave after every change (e.g. git commit + push, if type of autosave is 'git'). Workspace folder must be a git repository, otherwise will throw an error
             autosave_type = 'git' -- type of autosave, can be only 'git' now
         }
     },
@@ -33,6 +33,7 @@ or with custom options, with defaults as following
 Run ```:Agenda``` to open main menu (not implemented yet)
 
 ```:Agenda tasks``` to open task manager
+
 ```:Agenda kanban``` to open kanban board
 
 
