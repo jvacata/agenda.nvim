@@ -5,6 +5,8 @@ local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
 local string_utils = require('agenda.util.string')
 
+local autosave_service = require('agenda.service.autosave_service')
+
 ---Save a task to disk
 ---@param task Task
 function TaskService:save_task(task)
@@ -13,6 +15,7 @@ function TaskService:save_task(task)
     end
 
     file_utils:save_file(global_config.workspace_task_path, task.id, vim.json.encode(task))
+    autosave_service:autosave()
 end
 
 ---Delete a task from disk
