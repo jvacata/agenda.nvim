@@ -61,10 +61,22 @@ function RenderController:init_view(view_name, params)
     self.view_config[view_name].controller:init_view(params)
 end
 
+---Render all active views
+---Gets view data from each controller and passes it to the corresponding view
 function RenderController:render()
     for _, view_name in ipairs(self.active_views) do
-        local view_instance = self.view_config[view_name].view
-        view_instance:render()
+        local config = self.view_config[view_name]
+        local view_instance = config.view
+        local controller = config.controller
+
+        -- Get view data from controller if it has get_view_data method
+        local view_data = nil
+        if controller.get_view_data then
+            view_data = controller:get_view_data()
+        end
+
+        -- Pass view data to view's render method
+        view_instance:render(view_data)
     end
 end
 

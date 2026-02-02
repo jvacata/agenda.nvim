@@ -1,112 +1,129 @@
 local TaskView = {}
 
 local constants = require('agenda.constants')
-
 local window_util = require('agenda.util.window')
-local task_repository = require('agenda.repository.task_repository')
-
 local global_config = require('agenda.config.global')
 local window_config = require('agenda.config.window')
 
-TaskView.current_line_index = nil
-TaskView.current_detail_line_index = nil
-
+-- Buffer and window references (view infrastructure, not state)
 -- @type number
 TaskView.list_bufnr = nil
 -- @type number
 TaskView.list_winnr = nil
-
 -- @type number
 TaskView.detail_bufnr = nil
 -- @type number
 TaskView.detail_winnr = nil
 
----@alias WindowType "list"|"detail"|"edit"
-
--- @type WindowType
-TaskView.current_window = "list"
-
 function TaskView:init()
     self.list_bufnr, self.list_winnr = window_util:get_win("agenda_task_list", window_config:task_list_window())
-    self.detail_bufnr, self.detail_winnr = window_util:get_win("agenda_task_detail",
-        window_config:task_detail_window())
-
-    if task_repository:size() > 0 then
-        self.current_line_index = 0
-    else
-        self.current_line_index = nil
-    end
-
-    self.current_detail_line_index = nil
-    self.current_window = "list"
-
+    self.detail_bufnr, self.detail_winnr = window_util:get_win("agenda_task_detail", window_config:task_detail_window())
     vim.api.nvim_set_current_win(self.list_winnr)
 end
 
-function TaskView:render()
+---Render the task view with provided data
+---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+function TaskView:render(view_data)
     window_util:hide_cursor()
-    TaskView:render_task_list()
-    TaskView:render_task_detail()
+    self:render_task_list(view_data)
+    self:render_task_detail(view_data)
 end
 
-function TaskView:render_task_list()
+---Render the task list
+---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+function TaskView:render_task_list(view_data)
     window_util:clean_buffer(self.list_bufnr)
 
     vim.api.nvim_set_option_value('modifiable', true, { buf = self.list_bufnr })
-    for i, task in ipairs(task_repository:get_all()) do
+    for i, task in ipairs(view_data.tasks) do
         vim.api.nvim_buf_set_lines(self.list_bufnr, i - 1, i, false, { task.title })
     end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.list_bufnr })
 
-    TaskView:highlight_list_line(self.list_bufnr)
+    self:highlight_list_line(view_data)
 end
 
-function TaskView:render_task_detail()
+---Get display text for task status
+---@param status TaskStatus|nil
+---@return string
+function TaskView:get_status_display(status)
+    local display = {
+        todo = "Open",
+        in_progress = "In Progress",
+        done = "Done"
+    }
+    return display[status] or "Open"
+end
+
+---Render the task detail panel
+---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+function TaskView:render_task_detail(view_data)
     window_util:clean_buffer(self.detail_bufnr)
-    if task_repository:size() == 0 or self.current_line_index == nil then
+    if #view_data.tasks == 0 or view_data.selected_index == nil then
         return
     end
 
     vim.api.nvim_set_option_value('modifiable', true, { buf = self.detail_bufnr })
-    local task = task_repository:get_all()[self.current_line_index + 1]
-    vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.ID_LINE_INDEX, constants.ID_LINE_INDEX + 1, false,
-        { "Id: " .. task.id })
-    vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.TITLE_LINE_INDEX, constants.TITLE_LINE_INDEX + 1, false,
-        { "Title: " .. task.title })
+    local task = view_data.tasks[view_data.selected_index + 1]
+    if task then
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.ID_LINE_INDEX, constants.ID_LINE_INDEX + 1, false,
+            { "Id: " .. task.id })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.TITLE_LINE_INDEX, constants.TITLE_LINE_INDEX + 1, false,
+            { "Title: " .. task.title })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.STATE_LINE_INDEX, constants.STATE_LINE_INDEX + 1, false,
+            { "State: " .. self:get_status_display(task.status) })
+    end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 
-    self:highlight_detail_line(self.detail_bufnr)
+    self:highlight_detail_line(view_data)
 end
 
-function TaskView:highlight_list_line(bufnr)
-    TaskView:clear_marks(bufnr)
+---Highlight the selected line in the list
+---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+function TaskView:highlight_list_line(view_data)
+    self:clear_marks(self.list_bufnr)
 
-    if self.current_line_index == nil then
+    if view_data.selected_index == nil then
         return
     end
 
-    local task_count = task_repository:size()
+    local task_count = #view_data.tasks
     if task_count > 0 then
-        local len = #(task_repository:get_all()[self.current_line_index + 1].title)
-        TaskView:highlight_line(bufnr, self.current_line_index, len)
+        local task = view_data.tasks[view_data.selected_index + 1]
+        if task then
+            local len = #task.title
+            self:highlight_line(self.list_bufnr, view_data.selected_index, len)
+        end
     end
 end
 
-function TaskView:highlight_detail_line(bufnr)
-    self:clear_marks(bufnr)
+---Highlight the selected line in the detail panel
+---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+function TaskView:highlight_detail_line(view_data)
+    self:clear_marks(self.detail_bufnr)
 
-    if self.current_detail_line_index == nil or self.current_window ~= "detail" then
+    if view_data.detail_index == nil or view_data.active_window ~= "detail" then
         return
     end
 
-    local len = #(vim.api.nvim_buf_get_lines(bufnr, self.current_detail_line_index, self.current_detail_line_index + 1, false)[1])
-    self:highlight_line(bufnr, self.current_detail_line_index, len)
+    local line = vim.api.nvim_buf_get_lines(self.detail_bufnr, view_data.detail_index, view_data.detail_index + 1, false)
+        [1]
+    if line then
+        local len = #line
+        self:highlight_line(self.detail_bufnr, view_data.detail_index, len)
+    end
 end
 
+---Apply highlight to a line
+---@param bufnr number
+---@param line_index number
+---@param len number
 function TaskView:highlight_line(bufnr, line_index, len)
     vim.api.nvim_buf_set_extmark(bufnr, global_config.ns, line_index, 0, { end_col = len, hl_group = "Search" })
 end
 
+---Clear all extmarks from buffer
+---@param bufnr number
 function TaskView:clear_marks(bufnr)
     local all = vim.api.nvim_buf_get_extmarks(bufnr, global_config.ns, 0, -1, {})
     for _, mark in pairs(all) do

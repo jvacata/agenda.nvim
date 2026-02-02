@@ -1,21 +1,26 @@
 local InputController = {}
 
-local input_model = require("agenda.model.input")
+local input_model = require("agenda.model.entity.input")
 local input_view = require("agenda.view.input")
 local render_controller = require("agenda.controller.render")
-
-InputController.callback = nil
 
 function InputController:init()
 end
 
+---Initialize the input view
+---@param params {data: string|string[], callback: function, mode?: "edit"|"select"}
 function InputController:init_view(params)
-    self.callback = params.callback
-    input_model.orig_value = params.data
-    input_model.input = params.data
+    local mode = params.mode or "edit"
+    input_model:open(params.data, params.callback, mode)
 
-    input_view:init()
+    if mode == "select" then
+        input_view:init(input_model:get_options(), mode)
+    else
+        input_view:init(input_model:get_value(), mode)
+    end
+
     self:bind_mapping()
+    self:render()
 end
 
 function InputController:bind_mapping()
@@ -23,23 +28,68 @@ function InputController:bind_mapping()
         { buffer = input_view.bufnr, silent = true })
     vim.keymap.set('n', '<CR>', function() InputController:close_edit() end,
         { buffer = input_view.bufnr, silent = true })
-    vim.keymap.set('i', '<CR>', function() vim.cmd("stopinsert") end,
-        { buffer = input_view.bufnr, silent = true })
+
+    if input_model:get_mode() == "select" then
+        vim.keymap.set('n', 'j', function() InputController:select_next() end,
+            { buffer = input_view.bufnr, silent = true })
+        vim.keymap.set('n', 'k', function() InputController:select_prev() end,
+            { buffer = input_view.bufnr, silent = true })
+    else
+        vim.keymap.set('i', '<CR>', function() vim.cmd("stopinsert") end,
+            { buffer = input_view.bufnr, silent = true })
+    end
+end
+
+---Get view data for rendering
+---@return {value: string, selected_index: number}
+function InputController:get_view_data()
+    return {
+        value = input_model:get_value(),
+        selected_index = input_model:get_selected_index()
+    }
+end
+
+---Render the input view
+function InputController:render()
+    input_view:render(self:get_view_data())
+end
+
+---Move selection to next item (select mode)
+function InputController:select_next()
+    input_model:select_next()
+    self:render()
+end
+
+---Move selection to previous item (select mode)
+function InputController:select_prev()
+    input_model:select_prev()
+    self:render()
 end
 
 function InputController:cancel_edit()
+    local callback = input_model:get_callback()
+    input_model:close()
     render_controller:remove_view("input")
-    self.callback()
+    if callback then
+        callback()
+    end
 end
 
 function InputController:close_edit()
     local value = InputController:get_value()
+    local callback = input_model:get_callback()
+    input_model:close()
     render_controller:remove_view("input")
-    self.callback(value)
+    if callback then
+        callback(value)
+    end
 end
 
 function InputController:get_value()
-    return vim.api.nvim_buf_get_lines(input_view.bufnr, 0, 1, false)[1]
+    if input_model:get_mode() == "select" then
+        return input_model:get_value()
+    end
+    return input_view:get_buffer_value()
 end
 
 return InputController
