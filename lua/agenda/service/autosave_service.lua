@@ -13,6 +13,15 @@ end
 
 ---Commit and push changes to git
 function AutosaveService:autosave()
+    if not global_config.user_config.autosave then
+        return
+    end
+
+    if global_config.user_config.autosave_type ~= 'git' then
+        error("Unsupported autosave type: " ..
+        global_config.user_config.autosave_type .. ". Only 'git' is supported for now.")
+    end
+
     if not is_git_repo() then
         error("Workspace is not a git repository")
     end

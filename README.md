@@ -21,7 +21,9 @@ or with custom options, with defaults as following
     {
         "jvacata/agenda.nvim",
         opts = {
-            workspace_path = '~/.local/share/agenda.nvim' -- path where all agenda data will be stored
+            workspace_path = '~/.local/share/agenda.nvim' -- path where all agenda data will be stored,
+            autosave = true -- trigger autosave after every change (e.g. git commit + push, if type of autosave is 'git')
+            autosave_type = 'git' -- type of autosave, can be only 'git' now
         }
     },
 ```
