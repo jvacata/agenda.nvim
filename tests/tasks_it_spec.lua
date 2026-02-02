@@ -7,8 +7,12 @@ local task_ui_state = require('agenda.model.ui.task_ui_state')
 local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
 local stub = require("luassert.stub")
+local autosave_service = require('agenda.service.autosave_service')
 
 init:setup()
+
+local mocked_autosave = stub(autosave_service, 'autosave')
+mocked_autosave.returns()
 
 describe('Integration tests for tasks', function()
     before_each(function()
