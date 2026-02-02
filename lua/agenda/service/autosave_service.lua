@@ -17,28 +17,41 @@ function AutosaveService:autosave()
         error("Workspace is not a git repository")
     end
 
+    local workspace = global_config.user_config.workspace_path
+
     -- Stage all changes
-    local stage_cmd = 'git -C ' .. global_config.user_config.workspace_path .. ' add -A'
+    local stage_cmd = 'git -C ' .. workspace .. ' add -A'
     vim.fn.system(stage_cmd)
     if vim.v.shell_error ~= 0 then
         error("Failed to stage changes")
     end
 
+    -- Check if there are staged changes to commit
+    local diff_cmd = 'git -C ' .. workspace .. ' diff --cached --quiet'
+    vim.fn.system(diff_cmd)
+    if vim.v.shell_error == 0 then
+        -- No changes to commit
+        return
+    end
+
     -- Commit with timestamp
     local commit_msg = 'autosave: ' .. os.date('%Y-%m-%d %H:%M:%S')
-    local commit_cmd = 'git -C ' ..
-        global_config.user_config.workspace_path .. ' commit -m ' .. vim.fn.shellescape(commit_msg)
-    print(commit_cmd)
+    local commit_cmd = 'git -C ' .. workspace .. ' commit -m ' .. vim.fn.shellescape(commit_msg)
     vim.fn.system(commit_cmd)
     if vim.v.shell_error ~= 0 then
         error("Failed to commit changes")
     end
 
-    -- Push to remote
-    vim.fn.system('git -C ' .. global_config.user_config.workspace_path .. ' push')
-    if vim.v.shell_error ~= 0 then
-        error("Failed to push changes")
-    end
+    -- Push to remote asynchronously
+    vim.fn.jobstart('git -C ' .. workspace .. ' push', {
+        on_exit = function(_, exit_code)
+            if exit_code ~= 0 then
+                vim.schedule(function()
+                    vim.notify("Autosave: Failed to push changes", vim.log.levels.WARN)
+                end)
+            end
+        end
+    })
 end
 
 return AutosaveService
