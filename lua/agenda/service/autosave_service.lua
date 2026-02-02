@@ -5,7 +5,9 @@ local global_config = require('agenda.config.global')
 ---Check if workspace is a git repository
 ---@return boolean
 local function is_git_repo()
-    local result = vim.fn.system('git -C ' .. vim.fn.shellescape(global_config.workspace_path) .. ' rev-parse --is-inside-work-tree 2>/dev/null')
+    local cmd = 'git -C ' ..
+        vim.fn.shellescape(global_config.user_config.workspace_path) .. ' rev-parse --is-inside-work-tree 2>/dev/null'
+    local result = vim.fn.system(cmd)
     return vim.v.shell_error == 0 and vim.trim(result) == 'true'
 end
 
@@ -15,23 +17,25 @@ function AutosaveService:autosave()
         error("Workspace is not a git repository")
     end
 
-    local workspace = vim.fn.shellescape(global_config.workspace_path)
-
     -- Stage all changes
-    vim.fn.system('git -C ' .. workspace .. ' add -A')
+    local stage_cmd = 'git -C ' .. global_config.user_config.workspace_path .. ' add -A'
+    vim.fn.system(stage_cmd)
     if vim.v.shell_error ~= 0 then
         error("Failed to stage changes")
     end
 
     -- Commit with timestamp
     local commit_msg = 'autosave: ' .. os.date('%Y-%m-%d %H:%M:%S')
-    vim.fn.system('git -C ' .. workspace .. ' commit -m ' .. vim.fn.shellescape(commit_msg))
+    local commit_cmd = 'git -C ' ..
+        global_config.user_config.workspace_path .. ' commit -m ' .. vim.fn.shellescape(commit_msg)
+    print(commit_cmd)
+    vim.fn.system(commit_cmd)
     if vim.v.shell_error ~= 0 then
         error("Failed to commit changes")
     end
 
     -- Push to remote
-    vim.fn.system('git -C ' .. workspace .. ' push')
+    vim.fn.system('git -C ' .. global_config.user_config.workspace_path .. ' push')
     if vim.v.shell_error ~= 0 then
         error("Failed to push changes")
     end
