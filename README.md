@@ -31,6 +31,7 @@ or with custom options, with defaults as following
 Run ```:Agenda``` to open main menu (not implemented yet)
 
 ```:Agenda tasks``` to open task manager
+```:Agenda kanban``` to open kanban board
 
 
 # Task manager

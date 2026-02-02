@@ -113,4 +113,132 @@ describe('Integration tests for tasks', function()
             assert.are.equal("Test task", task_store:get_tasks()[1].title)
         end)
     end)
+
+    describe('Changing task status with select input', function()
+        it('Task status will be changed to in_progress', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+            assert.are.equal("todo", task_store:get_tasks()[1].status)
+
+            -- Navigate to detail view
+            task_controller:do_action()
+            -- Move to status line
+            task_controller:detail_move_down()
+            -- Open select input
+            task_controller:do_action()
+
+            -- Select next option (in_progress)
+            input_controller:select_next()
+            input_controller:close_edit()
+
+            render_controller:destroy()
+            assert.are.equal(1, task_store:get_task_count())
+            assert.are.equal("in_progress", task_store:get_tasks()[1].status)
+        end)
+
+        it('Task status will be changed to done', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+            assert.are.equal("todo", task_store:get_tasks()[1].status)
+
+            -- Navigate to detail view
+            task_controller:do_action()
+            -- Move to status line
+            task_controller:detail_move_down()
+            -- Open select input
+            task_controller:do_action()
+
+            -- Select next option twice (in_progress -> done)
+            input_controller:select_next()
+            input_controller:select_next()
+            input_controller:close_edit()
+
+            render_controller:destroy()
+            assert.are.equal(1, task_store:get_task_count())
+            assert.are.equal("done", task_store:get_tasks()[1].status)
+        end)
+
+        it('Task status change will be cancelled', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+            assert.are.equal("todo", task_store:get_tasks()[1].status)
+
+            -- Navigate to detail view
+            task_controller:do_action()
+            -- Move to status line
+            task_controller:detail_move_down()
+            -- Open select input
+            task_controller:do_action()
+
+            -- Select next option but cancel
+            input_controller:select_next()
+            input_controller:cancel_edit()
+
+            render_controller:destroy()
+            assert.are.equal(1, task_store:get_task_count())
+            assert.are.equal("todo", task_store:get_tasks()[1].status)
+        end)
+
+        it('Select prev does not go below first option', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            -- Navigate to detail view
+            task_controller:do_action()
+            -- Move to status line
+            task_controller:detail_move_down()
+            -- Open select input
+            task_controller:do_action()
+
+            -- Try to go before first option
+            input_controller:select_prev()
+            input_controller:close_edit()
+
+            render_controller:destroy()
+            assert.are.equal("todo", task_store:get_tasks()[1].status)
+        end)
+
+        it('Select next does not go past last option', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            -- Navigate to detail view
+            task_controller:do_action()
+            -- Move to status line
+            task_controller:detail_move_down()
+            -- Open select input
+            task_controller:do_action()
+
+            -- Try to go past last option (todo -> in_progress -> done -> done)
+            input_controller:select_next()
+            input_controller:select_next()
+            input_controller:select_next()
+            input_controller:select_next()
+            input_controller:close_edit()
+
+            render_controller:destroy()
+            assert.are.equal("done", task_store:get_tasks()[1].status)
+        end)
+
+        it('Select can navigate back and forth', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            -- Navigate to detail view
+            task_controller:do_action()
+            -- Move to status line
+            task_controller:detail_move_down()
+            -- Open select input
+            task_controller:do_action()
+
+            -- Navigate: todo -> in_progress -> done -> in_progress
+            input_controller:select_next()
+            input_controller:select_next()
+            input_controller:select_prev()
+            input_controller:close_edit()
+
+            render_controller:destroy()
+            assert.are.equal("in_progress", task_store:get_tasks()[1].status)
+        end)
+    end)
 end)
