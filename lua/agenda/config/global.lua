@@ -2,6 +2,8 @@ local GlobalConfig = {}
 
 GlobalConfig.user_config = {
     workspace_path = vim.fn.expand('~/.local/share/agenda.nvim'),
+    autosave = false,
+    autosave_type = 'git'
 }
 
 GlobalConfig.workspace_task_path = ''
