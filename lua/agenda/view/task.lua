@@ -6,13 +6,13 @@ local global_config = require('agenda.config.global')
 local window_config = require('agenda.config.window')
 
 -- Buffer and window references (view infrastructure, not state)
--- @type number
+---@type number
 TaskView.list_bufnr = nil
--- @type number
+---@type number
 TaskView.list_winnr = nil
--- @type number
+---@type number
 TaskView.detail_bufnr = nil
--- @type number
+---@type number
 TaskView.detail_winnr = nil
 
 function TaskView:init()

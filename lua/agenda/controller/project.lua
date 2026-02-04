@@ -7,6 +7,9 @@ local project_ui_state = require('agenda.model.ui.project_ui_state')
 local Project = require('agenda.model.entity.project')
 local project_view = require('agenda.view.project')
 local render_controller = require('agenda.controller.render')
+local task_store = require('agenda.model.entity.task_store')
+local task_service = require('agenda.service.task_service')
+local Task = require('agenda.model.entity.task')
 
 function ProjectController:init()
 end
@@ -166,6 +169,16 @@ function ProjectController:remove_project()
 
     project_service:delete_project(project)
     project_store:remove_project(project.id)
+
+    -- Remove project reference from all tasks that had this project
+    local tasks = task_store:get_tasks()
+    for _, task in ipairs(tasks) do
+        if task.project_id == project.id then
+            local updated_task = Task.with_project(task, nil)
+            task_service:save_task(updated_task)
+            task_store:update_task(updated_task)
+        end
+    end
 
     -- Adjust selected index if needed
     local project_count = project_store:get_project_count()
