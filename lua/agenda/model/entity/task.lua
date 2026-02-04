@@ -4,6 +4,7 @@
 ---@field id string -- id in uuid format
 ---@field title string
 ---@field status TaskStatus
+---@field project_id string|nil -- optional project reference
 
 local Task = {}
 
@@ -17,7 +18,8 @@ function Task.create(title, status)
     return {
         id = common_util:generate_uuid_v4(),
         title = title or "",
-        status = status or "todo"
+        status = status or "todo",
+        project_id = nil
     }
 end
 
@@ -29,7 +31,8 @@ function Task.with_title(task, new_title)
     return {
         id = task.id,
         title = new_title,
-        status = task.status
+        status = task.status,
+        project_id = task.project_id
     }
 end
 
@@ -41,7 +44,21 @@ function Task.with_status(task, new_status)
     return {
         id = task.id,
         title = task.title,
-        status = new_status
+        status = new_status,
+        project_id = task.project_id
+    }
+end
+
+---Create a copy of task with updated project
+---@param task Task
+---@param project_id string|nil
+---@return Task
+function Task.with_project(task, project_id)
+    return {
+        id = task.id,
+        title = task.title,
+        status = task.status,
+        project_id = project_id
     }
 end
 

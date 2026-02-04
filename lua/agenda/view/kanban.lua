@@ -4,25 +4,37 @@ local window_util = require('agenda.util.window')
 local global_config = require('agenda.config.global')
 local window_config = require('agenda.config.window')
 
--- Buffer and window reference
+-- Buffer and window references for board
 ---@type number
 KanbanView.bufnr = nil
 ---@type number
 KanbanView.winnr = nil
+
+-- Buffer and window references for project panel
+---@type number
+KanbanView.project_bufnr = nil
+---@type number
+KanbanView.project_winnr = nil
 
 -- Column configuration
 local COLUMN_WIDTH = 30
 local COLUMN_PADDING = 2
 
 function KanbanView:init()
+    self.project_bufnr, self.project_winnr = window_util:get_win("agenda_kanban_projects", window_config:kanban_project_panel_window())
     self.bufnr, self.winnr = window_util:get_win("agenda_kanban", window_config:kanban_window())
-    vim.api.nvim_set_current_win(self.winnr)
+    vim.api.nvim_set_current_win(self.project_winnr)
 end
 
 ---Render the kanban view with provided data
----@param view_data {columns: table<string, Task[]>, column_names: string[], column_titles: table<string, string>, selected_column: string, selected_row: number|nil}
+---@param view_data {columns: table<string, Task[]>, column_names: string[], column_titles: table<string, string>, selected_column: string, selected_row: number|nil, project_list: string[], project_list_index: number, focus: string}
 function KanbanView:render(view_data)
     window_util:hide_cursor()
+
+    -- Render project panel
+    self:render_project_panel(view_data)
+
+    -- Render board
     window_util:clean_buffer(self.bufnr)
 
     vim.api.nvim_set_option_value('modifiable', true, { buf = self.bufnr })
@@ -33,6 +45,44 @@ function KanbanView:render(view_data)
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.bufnr })
 
     self:highlight_selected(view_data)
+    self:highlight_project_selection(view_data)
+end
+
+---Render the project panel
+---@param view_data {project_list: string[], project_list_index: number, focus: string}
+function KanbanView:render_project_panel(view_data)
+    window_util:clean_buffer(self.project_bufnr)
+
+    vim.api.nvim_set_option_value('modifiable', true, { buf = self.project_bufnr })
+    for i, project_name in ipairs(view_data.project_list) do
+        vim.api.nvim_buf_set_lines(self.project_bufnr, i - 1, i, false, { project_name })
+    end
+    vim.api.nvim_set_option_value('modifiable', false, { buf = self.project_bufnr })
+end
+
+---Highlight the selected project in the panel
+---@param view_data {project_list: string[], project_list_index: number, focus: string}
+function KanbanView:highlight_project_selection(view_data)
+    self:clear_project_marks()
+
+    if view_data.focus ~= "project_list" then
+        return
+    end
+
+    local project_name = view_data.project_list[view_data.project_list_index + 1]
+    if project_name then
+        local len = #project_name
+        vim.api.nvim_buf_set_extmark(self.project_bufnr, global_config.ns, view_data.project_list_index, 0,
+            { end_col = len, hl_group = "Search" })
+    end
+end
+
+---Clear all extmarks from project buffer
+function KanbanView:clear_project_marks()
+    local all = vim.api.nvim_buf_get_extmarks(self.project_bufnr, global_config.ns, 0, -1, {})
+    for _, mark in pairs(all) do
+        vim.api.nvim_buf_del_extmark(self.project_bufnr, global_config.ns, mark[1])
+    end
 end
 
 ---Build the lines for the kanban board
@@ -185,6 +235,7 @@ end
 
 function KanbanView:destroy()
     vim.api.nvim_win_close(self.winnr, true)
+    vim.api.nvim_win_close(self.project_winnr, true)
 end
 
 return KanbanView
