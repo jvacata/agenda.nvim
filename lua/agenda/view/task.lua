@@ -6,13 +6,13 @@ local global_config = require('agenda.config.global')
 local window_config = require('agenda.config.window')
 
 -- Buffer and window references (view infrastructure, not state)
--- @type number
+---@type number
 TaskView.list_bufnr = nil
--- @type number
+---@type number
 TaskView.list_winnr = nil
--- @type number
+---@type number
 TaskView.detail_bufnr = nil
--- @type number
+---@type number
 TaskView.detail_winnr = nil
 
 function TaskView:init()
@@ -56,7 +56,7 @@ function TaskView:get_status_display(status)
 end
 
 ---Render the task detail panel
----@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil, project_name: string|nil}
 function TaskView:render_task_detail(view_data)
     window_util:clean_buffer(self.detail_bufnr)
     if #view_data.tasks == 0 or view_data.selected_index == nil then
@@ -72,6 +72,8 @@ function TaskView:render_task_detail(view_data)
             { "Title: " .. task.title })
         vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.STATE_LINE_INDEX, constants.STATE_LINE_INDEX + 1, false,
             { "State: " .. self:get_status_display(task.status) })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.PROJECT_LINE_INDEX, constants.PROJECT_LINE_INDEX + 1, false,
+            { "Project: " .. (view_data.project_name or "None") })
     end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 

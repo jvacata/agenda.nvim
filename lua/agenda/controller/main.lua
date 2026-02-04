@@ -13,6 +13,8 @@ function MainController:route(args)
         render_controller:set_view("task")
     elseif args == "kanban" then
         render_controller:set_view("kanban")
+    elseif args == "project" then
+        render_controller:set_view("project")
     else
         -- TODO fallback to task view, because main view is not implemented yet
         render_controller:set_view("task")
