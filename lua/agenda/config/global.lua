@@ -7,6 +7,7 @@ GlobalConfig.user_config = {
 }
 
 GlobalConfig.workspace_task_path = ''
+GlobalConfig.workspace_project_path = ''
 GlobalConfig.ns = vim.api.nvim_create_namespace("agenda")
 GlobalConfig.orig_cursor_value = ''
 
@@ -19,6 +20,7 @@ function GlobalConfig:init(user_config)
 
     self.user_config.workspace_path = vim.fn.expand(self.user_config.workspace_path)
     self.workspace_task_path = self.user_config.workspace_path .. '/tasks'
+    self.workspace_project_path = self.user_config.workspace_path .. '/projects'
     self.orig_cursor_value = vim.api.nvim_get_option_value('guicursor', {})
 end
 

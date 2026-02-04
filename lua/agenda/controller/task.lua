@@ -7,12 +7,15 @@ local task_ui_state = require('agenda.model.ui.task_ui_state')
 local Task = require('agenda.model.entity.task')
 local task_view = require('agenda.view.task')
 local render_controller = require('agenda.controller.render')
+local project_store = require('agenda.model.entity.project_store')
+local project_service = require('agenda.service.project_service')
 
 function TaskController:init()
 end
 
 function TaskController:init_view()
     task_service:init_load_tasks()
+    project_service:init_load_projects()
     -- Initialize selection if we have tasks
     if task_store:get_task_count() > 0 then
         task_ui_state:set_selected_index(0)
@@ -70,13 +73,23 @@ function TaskController:get_selected_task()
 end
 
 ---Get view data for rendering
----@return {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil}
+---@return {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil, project_name: string|nil}
 function TaskController:get_view_data()
+    local task = self:get_selected_task()
+    local project_name = nil
+    if task and task.project_id then
+        local project = project_store:get_project_by_id(task.project_id)
+        if project then
+            project_name = project.name
+        end
+    end
+
     return {
         tasks = task_store:get_tasks(),
         selected_index = task_ui_state:get_selected_index(),
         active_window = task_ui_state:get_active_window(),
-        detail_index = task_ui_state:get_detail_index()
+        detail_index = task_ui_state:get_detail_index(),
+        project_name = project_name
     }
 end
 
@@ -147,7 +160,7 @@ function TaskController:detail_move_down()
         return
     end
 
-    if detail_index < constants.STATE_LINE_INDEX then
+    if detail_index < constants.PROJECT_LINE_INDEX then
         task_ui_state:set_detail_index(detail_index + 1)
     end
     render_controller:render()
@@ -221,6 +234,45 @@ function TaskController:show_edit()
         render_controller:add_view("input", {
             callback = callback,
             data = Task.get_status_options(),
+            mode = "select"
+        })
+    elseif detail_index == constants.PROJECT_LINE_INDEX then
+        local callback = function(new_value)
+            if new_value == nil then
+                return
+            end
+
+            local current_task = self:get_selected_task()
+            if current_task then
+                -- "None" means remove project assignment
+                local project_id = nil
+                if new_value ~= "None" then
+                    -- Find project by name
+                    local projects = project_store:get_projects()
+                    for _, project in ipairs(projects) do
+                        if project.name == new_value then
+                            project_id = project.id
+                            break
+                        end
+                    end
+                end
+                local updated_task = Task.with_project(current_task, project_id)
+                task_service:save_task(updated_task)
+                task_store:update_task(updated_task)
+            end
+            render_controller:render()
+        end
+
+        -- Build options list: "None" + all project names
+        local options = { "None" }
+        local projects = project_store:get_projects()
+        for _, project in ipairs(projects) do
+            table.insert(options, project.name)
+        end
+
+        render_controller:add_view("input", {
+            callback = callback,
+            data = options,
             mode = "select"
         })
     end

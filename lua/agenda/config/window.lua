@@ -38,13 +38,25 @@ function WindowConfig:task_edit_window(height)
     }
 end
 
-function WindowConfig:kanban_window()
+function WindowConfig:kanban_project_panel_window()
     return {
         relative = 'editor',
-        width = math.floor(vim.o.columns * 0.8),
+        width = 25,
         height = math.floor(vim.o.lines * 0.6),
         row = math.floor(vim.o.lines * 0.1),
         col = math.floor(vim.o.columns * 0.1),
+        style = 'minimal',
+        border = 'rounded',
+    }
+end
+
+function WindowConfig:kanban_window()
+    return {
+        relative = 'editor',
+        width = math.floor(vim.o.columns * 0.8) - 28,
+        height = math.floor(vim.o.lines * 0.6),
+        row = math.floor(vim.o.lines * 0.1),
+        col = math.floor(vim.o.columns * 0.1) + 28,
         style = 'minimal',
         border = 'rounded',
     }
@@ -60,6 +72,30 @@ function WindowConfig:status_bar_window()
         style = 'minimal',
         border = 'rounded',
         focusable = false,
+    }
+end
+
+function WindowConfig:project_list_window()
+    return {
+        relative = 'editor',
+        width = math.floor(40),
+        height = math.floor(vim.o.lines * 0.6),
+        row = math.floor(vim.o.lines * 0.1),
+        col = math.floor(vim.o.columns * 0.1),
+        style = 'minimal',
+        border = 'rounded',
+    }
+end
+
+function WindowConfig:project_detail_window()
+    return {
+        relative = 'editor',
+        width = math.floor(100),
+        height = math.floor(vim.o.lines * 0.6),
+        row = math.floor(vim.o.lines * 0.1),
+        col = math.floor(vim.o.columns * 0.3),
+        style = 'minimal',
+        border = 'rounded',
     }
 end
 
