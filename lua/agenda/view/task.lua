@@ -55,6 +55,21 @@ function TaskView:get_status_display(status)
     return display[status] or "Open"
 end
 
+---Get preview of description (first line, truncated)
+---@param description string|nil
+---@return string
+function TaskView:get_description_preview(description)
+    if description == nil then
+        return "(empty)"
+    end
+    local first_line = vim.split(description, "\n", { plain = true })[1] or ""
+    local max_len = 80
+    if #first_line > max_len then
+        return first_line:sub(1, max_len) .. "..."
+    end
+    return first_line
+end
+
 ---Render the task detail panel
 ---@param view_data {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil, project_name: string|nil}
 function TaskView:render_task_detail(view_data)
@@ -74,6 +89,8 @@ function TaskView:render_task_detail(view_data)
             { "State: " .. self:get_status_display(task.status) })
         vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.PROJECT_LINE_INDEX, constants.PROJECT_LINE_INDEX + 1, false,
             { "Project: " .. (view_data.project_name or "None") })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.DESCRIPTION_LINE_INDEX, constants.DESCRIPTION_LINE_INDEX + 1, false,
+            { "Description: " .. self:get_description_preview(task.description) })
     end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 

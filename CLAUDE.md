@@ -10,7 +10,7 @@ agenda.nvim is a Neovim plugin for personal productivity (tasks, kanban, notes, 
 
 **Run tests:**
 ```bash
-make test
+make test_local
 ```
 
 Tests use Plenary/Busted and run headlessly via `nvim --headless`. Tests are in `tests/` directory.

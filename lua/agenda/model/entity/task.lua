@@ -5,6 +5,7 @@
 ---@field title string
 ---@field status TaskStatus
 ---@field project_id string|nil -- optional project reference
+---@field description string|nil -- optional task description
 
 local Task = {}
 
@@ -19,7 +20,8 @@ function Task.create(title, status)
         id = common_util:generate_uuid_v4(),
         title = title or "",
         status = status or "todo",
-        project_id = nil
+        project_id = nil,
+        description = nil
     }
 end
 
@@ -32,7 +34,8 @@ function Task.with_title(task, new_title)
         id = task.id,
         title = new_title,
         status = task.status,
-        project_id = task.project_id
+        project_id = task.project_id,
+        description = task.description
     }
 end
 
@@ -45,7 +48,8 @@ function Task.with_status(task, new_status)
         id = task.id,
         title = task.title,
         status = new_status,
-        project_id = task.project_id
+        project_id = task.project_id,
+        description = task.description
     }
 end
 
@@ -58,7 +62,22 @@ function Task.with_project(task, project_id)
         id = task.id,
         title = task.title,
         status = task.status,
-        project_id = project_id
+        project_id = project_id,
+        description = task.description
+    }
+end
+
+---Create a copy of task with updated description
+---@param task Task
+---@param new_description string|nil
+---@return Task
+function Task.with_description(task, new_description)
+    return {
+        id = task.id,
+        title = task.title,
+        status = task.status,
+        project_id = task.project_id,
+        description = new_description
     }
 end
 
