@@ -59,7 +59,7 @@ end
 ---@param description string|nil
 ---@return string
 function TaskView:get_description_preview(description)
-    if not description or description == "" then
+    if description == nil then
         return "(empty)"
     end
     local first_line = vim.split(description, "\n", { plain = true })[1] or ""

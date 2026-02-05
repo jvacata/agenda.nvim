@@ -57,11 +57,15 @@ function InputView:highlight_selection(index)
 end
 
 ---Get the current value from the buffer
----@return string
+---@return string|nil
 function InputView:get_buffer_value()
     if self.mode == "multiline" then
         local lines = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, false)
-        return table.concat(lines, "\n")
+        local value = table.concat(lines, "\n")
+        if value == "" then
+            return nil
+        end
+        return value
     end
     return vim.api.nvim_buf_get_lines(self.bufnr, 0, 1, false)[1] or ""
 end
