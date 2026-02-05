@@ -9,18 +9,28 @@ InputView.mode = "edit"
 InputView.ns_id = vim.api.nvim_create_namespace("agenda_input_select")
 
 ---Initialize the input view with a value or options
----@param value string|string[] For edit mode: initial string. For select mode: list of options.
----@param mode? "edit"|"select" Defaults to "edit"
+---@param value string|string[] For edit mode: initial string. For select mode: list of options. For multiline: string with newlines.
+---@param mode? "edit"|"select"|"multiline" Defaults to "edit"
 function InputView:init(value, mode)
     self.mode = mode or "edit"
-    local height = self.mode == "select" and 5 or 1
-    InputView.bufnr, InputView.winnr = window_util:get_win("agenda_task_edit", window_config:task_edit_window(height))
+    local win_config
+    if self.mode == "select" then
+        win_config = window_config:task_edit_window(5)
+    elseif self.mode == "multiline" then
+        win_config = window_config:task_edit_window(20, 80)
+    else
+        win_config = window_config:task_edit_window(1)
+    end
+    InputView.bufnr, InputView.winnr = window_util:get_win("agenda_task_edit", win_config)
     window_util:clean_buffer(self.bufnr)
     vim.api.nvim_set_option_value('modifiable', true, { buf = self.bufnr })
 
     if self.mode == "select" then
         vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, value or {})
         vim.api.nvim_set_option_value('modifiable', false, { buf = self.bufnr })
+    elseif self.mode == "multiline" then
+        local lines = vim.split(value or "", "\n", { plain = true })
+        vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
     else
         vim.api.nvim_buf_set_lines(self.bufnr, 0, 1, false, { value or "" })
     end
@@ -49,6 +59,10 @@ end
 ---Get the current value from the buffer
 ---@return string
 function InputView:get_buffer_value()
+    if self.mode == "multiline" then
+        local lines = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, false)
+        return table.concat(lines, "\n")
+    end
     return vim.api.nvim_buf_get_lines(self.bufnr, 0, 1, false)[1] or ""
 end
 

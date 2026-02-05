@@ -3,7 +3,7 @@
 ---@field private _value string
 ---@field private _callback function|nil
 ---@field private _is_active boolean
----@field private _mode "edit"|"select"
+---@field private _mode "edit"|"select"|"multiline"
 ---@field private _options string[]
 ---@field private _selected_index number
 local InputModel = {}
@@ -17,9 +17,9 @@ InputModel._options = {}
 InputModel._selected_index = 1
 
 ---Open input with initial value and callback
----@param value string|string[] For edit mode: initial string. For select mode: list of options.
+---@param value string|string[] For edit mode: initial string. For select mode: list of options. For multiline: string with newlines.
 ---@param callback function
----@param mode? "edit"|"select" Defaults to "edit"
+---@param mode? "edit"|"select"|"multiline" Defaults to "edit"
 function InputModel:open(value, callback, mode)
     self._mode = mode or "edit"
     self._callback = callback
@@ -62,7 +62,7 @@ function InputModel:get_callback()
 end
 
 ---Get current mode
----@return "edit"|"select"
+---@return "edit"|"select"|"multiline"
 function InputModel:get_mode()
     return self._mode
 end
