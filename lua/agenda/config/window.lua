@@ -77,6 +77,18 @@ function WindowConfig:status_bar_window()
     }
 end
 
+function WindowConfig:calendar_window()
+    return {
+        relative = 'editor',
+        width = 24,
+        height = 11,
+        row = math.floor(vim.o.lines * 0.35),
+        col = math.floor(vim.o.columns * 0.4),
+        style = 'minimal',
+        border = 'rounded',
+    }
+end
+
 function WindowConfig:project_list_window()
     return {
         relative = 'editor',

@@ -55,6 +55,16 @@ function TaskView:get_status_display(status)
     return display[status] or "Open"
 end
 
+---Format a unix timestamp for display
+---@param timestamp number|nil
+---@return string
+function TaskView:format_timestamp(timestamp)
+    if timestamp == nil then
+        return "None"
+    end
+    return os.date("%Y-%m-%d %H:%M", timestamp)
+end
+
 ---Get preview of description (first line, truncated)
 ---@param description string|nil
 ---@return string
@@ -91,6 +101,10 @@ function TaskView:render_task_detail(view_data)
             { "Project: " .. (view_data.project_name or "None") })
         vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.DESCRIPTION_LINE_INDEX, constants.DESCRIPTION_LINE_INDEX + 1, false,
             { "Description: " .. self:get_description_preview(task.description) })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.CREATED_AT_LINE_INDEX, constants.CREATED_AT_LINE_INDEX + 1, false,
+            { "Created: " .. self:format_timestamp(task.created_at) })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.DUE_AT_LINE_INDEX, constants.DUE_AT_LINE_INDEX + 1, false,
+            { "Due: " .. self:format_timestamp(task.due_at) })
     end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 

@@ -160,7 +160,7 @@ function TaskController:detail_move_down()
         return
     end
 
-    if detail_index < constants.DESCRIPTION_LINE_INDEX then
+    if detail_index < constants.DUE_AT_LINE_INDEX then
         task_ui_state:set_detail_index(detail_index + 1)
     end
     render_controller:render()
@@ -295,6 +295,26 @@ function TaskController:show_edit()
             data = task.description or "",
             mode = "multiline"
         })
+    elseif detail_index == constants.DUE_AT_LINE_INDEX then
+        local callback = function(new_value)
+            if new_value == nil then
+                return
+            end
+
+            local current_task = self:get_selected_task()
+            if current_task then
+                local due_at = nil
+                if new_value ~= "clear" then
+                    due_at = new_value
+                end
+                local updated_task = Task.with_due_at(current_task, due_at)
+                task_service:save_task(updated_task)
+                task_store:update_task(updated_task)
+            end
+            render_controller:render()
+        end
+
+        render_controller:add_view("calendar", { callback = callback, data = task.due_at })
     end
 end
 
