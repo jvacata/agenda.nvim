@@ -4,6 +4,7 @@ local global_config = require('agenda.config.global')
 local main_controller = require('agenda.controller.main')
 local render_controller = require('agenda.controller.render')
 local input_controller = require('agenda.controller.input')
+local calendar_controller = require('agenda.controller.calendar')
 local task_controller = require('agenda.controller.task')
 local kanban_controller = require('agenda.controller.kanban')
 local project_controller = require('agenda.controller.project')
@@ -18,6 +19,7 @@ local project_ui_state = require('agenda.model.ui.project_ui_state')
 local main_view = require('agenda.view.main')
 local task_view = require('agenda.view.task')
 local input_view = require('agenda.view.input')
+local calendar_view = require('agenda.view.calendar')
 local kanban_view = require('agenda.view.kanban')
 local project_view = require('agenda.view.project')
 local status_bar_view = require('agenda.view.status_bar')
@@ -43,6 +45,7 @@ M.init_instances = function()
     main_controller:init()
     task_controller:init()
     input_controller:init()
+    calendar_controller:init()
     kanban_controller:init()
     project_controller:init()
     status_bar_controller:init()
@@ -52,6 +55,7 @@ M.init_instances = function()
             main = { view = main_view, controller = main_controller },
             task = { view = task_view, controller = task_controller },
             input = { view = input_view, controller = input_controller },
+            calendar = { view = calendar_view, controller = calendar_controller },
             kanban = { view = kanban_view, controller = kanban_controller },
             project = { view = project_view, controller = project_controller },
             status_bar = { view = status_bar_view, controller = status_bar_controller }

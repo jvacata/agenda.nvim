@@ -6,6 +6,8 @@
 ---@field status TaskStatus
 ---@field project_id string|nil -- optional project reference
 ---@field description string|nil -- optional task description
+---@field created_at number -- unix timestamp of creation
+---@field due_at number|nil -- optional unix timestamp for due date
 
 local Task = {}
 
@@ -21,7 +23,9 @@ function Task.create(title, status)
         title = title or "",
         status = status or "todo",
         project_id = nil,
-        description = nil
+        description = nil,
+        created_at = os.time(),
+        due_at = nil
     }
 end
 
@@ -35,7 +39,9 @@ function Task.with_title(task, new_title)
         title = new_title,
         status = task.status,
         project_id = task.project_id,
-        description = task.description
+        description = task.description,
+        created_at = task.created_at,
+        due_at = task.due_at
     }
 end
 
@@ -49,7 +55,9 @@ function Task.with_status(task, new_status)
         title = task.title,
         status = new_status,
         project_id = task.project_id,
-        description = task.description
+        description = task.description,
+        created_at = task.created_at,
+        due_at = task.due_at
     }
 end
 
@@ -63,7 +71,9 @@ function Task.with_project(task, project_id)
         title = task.title,
         status = task.status,
         project_id = project_id,
-        description = task.description
+        description = task.description,
+        created_at = task.created_at,
+        due_at = task.due_at
     }
 end
 
@@ -77,7 +87,25 @@ function Task.with_description(task, new_description)
         title = task.title,
         status = task.status,
         project_id = task.project_id,
-        description = new_description
+        description = new_description,
+        created_at = task.created_at,
+        due_at = task.due_at
+    }
+end
+
+---Create a copy of task with updated due_at
+---@param task Task
+---@param due_at number|nil
+---@return Task
+function Task.with_due_at(task, due_at)
+    return {
+        id = task.id,
+        title = task.title,
+        status = task.status,
+        project_id = task.project_id,
+        description = task.description,
+        created_at = task.created_at,
+        due_at = due_at
     }
 end
 
