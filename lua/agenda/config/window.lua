@@ -1,5 +1,8 @@
 local WindowConfig = {}
 
+WindowConfig.BORDER_ACTIVE = { "╔", "═", "╗", "║", "╝", "═", "╚", "║" }
+WindowConfig.BORDER_DIM = "rounded"
+
 function WindowConfig:task_list_window()
     return {
         relative = 'editor',

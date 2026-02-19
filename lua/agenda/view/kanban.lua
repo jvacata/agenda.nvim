@@ -46,6 +46,7 @@ function KanbanView:render(view_data)
 
     self:highlight_selected(view_data)
     self:highlight_project_selection(view_data)
+    self:update_borders(view_data)
 end
 
 ---Render the project panel
@@ -208,6 +209,22 @@ function KanbanView:highlight_selected(view_data)
     vim.api.nvim_buf_set_extmark(self.bufnr, global_config.ns, 0, title_start,
         { end_col = title_start + #title, hl_group = "Search" })
 
+    -- Highlight the task being moved (in its original column)
+    if view_data.moving_task_id then
+        for ci, col_name in ipairs(view_data.column_names) do
+            local col_tasks = view_data.columns[col_name] or {}
+            for ri, t in ipairs(col_tasks) do
+                if t.id == view_data.moving_task_id then
+                    local moving_start_col = (ci - 1) * (COLUMN_WIDTH + COLUMN_PADDING)
+                    local moving_line = ri - 1 + 2 -- 0-based row + header + separator
+                    local text_len = math.min(#t.title + 2, COLUMN_WIDTH)
+                    vim.api.nvim_buf_set_extmark(self.bufnr, global_config.ns, moving_line, moving_start_col,
+                        { end_col = moving_start_col + text_len, hl_group = "Visual" })
+                end
+            end
+        end
+    end
+
     -- Highlight selected task if any
     if view_data.selected_row == nil then
         return
@@ -231,6 +248,21 @@ function KanbanView:clear_marks()
     for _, mark in pairs(all) do
         vim.api.nvim_buf_del_extmark(self.bufnr, global_config.ns, mark[1])
     end
+end
+
+---Update window borders based on which panel is focused
+---@param view_data {focus: string}
+function KanbanView:update_borders(view_data)
+    local project_border = view_data.focus == "project_list" and window_config.BORDER_ACTIVE or window_config.BORDER_DIM
+    local board_border = view_data.focus == "board" and window_config.BORDER_ACTIVE or window_config.BORDER_DIM
+
+    local project_cfg = window_config:kanban_project_panel_window()
+    project_cfg.border = project_border
+    vim.api.nvim_win_set_config(self.project_winnr, project_cfg)
+
+    local board_cfg = window_config:kanban_window()
+    board_cfg.border = board_border
+    vim.api.nvim_win_set_config(self.winnr, board_cfg)
 end
 
 function KanbanView:destroy()
