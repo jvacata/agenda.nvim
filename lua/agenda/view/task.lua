@@ -103,6 +103,8 @@ function TaskView:render_task_detail(view_data)
             { "Description: " .. self:get_description_preview(task.description) })
         vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.CREATED_AT_LINE_INDEX, constants.CREATED_AT_LINE_INDEX + 1, false,
             { "Created: " .. self:format_timestamp(task.created_at) })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.EDITED_AT_LINE_INDEX, constants.EDITED_AT_LINE_INDEX + 1, false,
+            { "Edited: " .. self:format_timestamp(task.edited_at) })
         vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.DUE_AT_LINE_INDEX, constants.DUE_AT_LINE_INDEX + 1, false,
             { "Due: " .. self:format_timestamp(task.due_at) })
     end
