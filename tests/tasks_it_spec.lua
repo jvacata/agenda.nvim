@@ -276,18 +276,59 @@ describe('Integration tests for tasks', function()
             render_controller:destroy()
         end)
 
+        it('edited_at equals created_at on task creation', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            local task = task_store:get_tasks()[1]
+            assert.is_not_nil(task.edited_at)
+            assert.are.equal(task.created_at, task.edited_at)
+
+            render_controller:destroy()
+        end)
+
+        it('edited_at updates when a field changes', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            local task = task_store:get_tasks()[1]
+            local original_edited_at = task.edited_at
+
+            local updated = Task.with_title(task, "Renamed task")
+            assert.is_true(updated.edited_at >= original_edited_at)
+            assert.are.equal(task.created_at, updated.created_at)
+
+            render_controller:destroy()
+        end)
+
+        it('edited_at persists after reload', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+            local original_edited_at = task_store:get_tasks()[1].edited_at
+
+            render_controller:destroy()
+
+            -- Reopen
+            vim.cmd('Agenda tasks')
+            local task = task_store:get_tasks()[1]
+            assert.are.equal(original_edited_at, task.edited_at)
+
+            render_controller:destroy()
+        end)
+
         it('due_at is set via calendar confirm and persists', function()
             vim.cmd('Agenda tasks')
             task_controller:create_task("Test task")
 
             -- Navigate to detail view
             task_controller:do_action()
-            -- Move to Due line (line index 6)
+            -- Move to Due line (line index 7)
             task_controller:detail_move_down() -- 1 -> 2
             task_controller:detail_move_down() -- 2 -> 3
             task_controller:detail_move_down() -- 3 -> 4
             task_controller:detail_move_down() -- 4 -> 5
             task_controller:detail_move_down() -- 5 -> 6
+            task_controller:detail_move_down() -- 6 -> 7
             -- Open calendar
             task_controller:do_action()
 
@@ -312,6 +353,7 @@ describe('Integration tests for tasks', function()
             task_controller:detail_move_down()
             task_controller:detail_move_down()
             task_controller:detail_move_down()
+            task_controller:detail_move_down()
             task_controller:do_action()
             calendar_controller:confirm()
 
@@ -319,6 +361,7 @@ describe('Integration tests for tasks', function()
 
             -- Now clear it
             task_controller:do_action()
+            task_controller:detail_move_down()
             task_controller:detail_move_down()
             task_controller:detail_move_down()
             task_controller:detail_move_down()
@@ -338,6 +381,7 @@ describe('Integration tests for tasks', function()
             task_controller:create_task("Test task")
 
             task_controller:do_action()
+            task_controller:detail_move_down()
             task_controller:detail_move_down()
             task_controller:detail_move_down()
             task_controller:detail_move_down()
@@ -365,6 +409,7 @@ describe('Integration tests for tasks', function()
             assert.are.equal(task.project_id, updated.project_id)
             assert.are.equal(task.description, updated.description)
             assert.are.equal(task.created_at, updated.created_at)
+            assert.is_not_nil(updated.edited_at)
             assert.are.equal(due, updated.due_at)
         end)
     end)
