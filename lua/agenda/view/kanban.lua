@@ -46,6 +46,7 @@ function KanbanView:render(view_data)
 
     self:highlight_selected(view_data)
     self:highlight_project_selection(view_data)
+    self:update_borders(view_data)
 end
 
 ---Render the project panel
@@ -247,6 +248,21 @@ function KanbanView:clear_marks()
     for _, mark in pairs(all) do
         vim.api.nvim_buf_del_extmark(self.bufnr, global_config.ns, mark[1])
     end
+end
+
+---Update window borders based on which panel is focused
+---@param view_data {focus: string}
+function KanbanView:update_borders(view_data)
+    local project_border = view_data.focus == "project_list" and window_config.BORDER_ACTIVE or window_config.BORDER_DIM
+    local board_border = view_data.focus == "board" and window_config.BORDER_ACTIVE or window_config.BORDER_DIM
+
+    local project_cfg = window_config:kanban_project_panel_window()
+    project_cfg.border = project_border
+    vim.api.nvim_win_set_config(self.project_winnr, project_cfg)
+
+    local board_cfg = window_config:kanban_window()
+    board_cfg.border = board_border
+    vim.api.nvim_win_set_config(self.winnr, board_cfg)
 end
 
 function KanbanView:destroy()
