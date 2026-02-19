@@ -116,6 +116,22 @@ function WindowConfig:project_detail_window()
     }
 end
 
+---@param line_count number Number of lines to display
+function WindowConfig:reminder_window(line_count)
+    local width = 40
+    return {
+        relative = 'editor',
+        width = width,
+        height = line_count,
+        row = 1,
+        col = vim.o.columns - width - 2,
+        style = 'minimal',
+        border = 'rounded',
+        focusable = false,
+        zindex = 50,
+    }
+end
+
 function WindowConfig:background_window()
     return {
         relative = 'editor',

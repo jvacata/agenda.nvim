@@ -1,6 +1,7 @@
 local M = {}
 
 local global_config = require('agenda.config.global')
+local reminder_service = require('agenda.service.reminder_service')
 local main_controller = require('agenda.controller.main')
 local render_controller = require('agenda.controller.render')
 local input_controller = require('agenda.controller.input')
@@ -31,6 +32,7 @@ local is_loaded = false
 M.setup = function(user_config)
     global_config:init(user_config)
     M.create_commands()
+    reminder_service:start()
 end
 
 M.init_instances = function()

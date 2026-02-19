@@ -3,7 +3,13 @@ local GlobalConfig = {}
 GlobalConfig.user_config = {
     workspace_path = vim.fn.expand('~/.local/share/agenda.nvim'),
     autosave = false,
-    autosave_type = 'git'
+    autosave_type = 'git',
+    reminder = {
+        enabled = true,
+        check_interval = 10, -- seconds between overdue checks
+        remind_interval = 10, -- minutes before first reminder and between repeats
+        popup_duration = 10, -- seconds the popup stays visible
+    }
 }
 
 GlobalConfig.workspace_task_path = ''
@@ -16,7 +22,7 @@ function GlobalConfig:init(user_config)
         user_config = {}
     end
 
-    self.user_config = vim.tbl_extend('force', self.user_config, user_config)
+    self.user_config = vim.tbl_deep_extend('force', self.user_config, user_config)
 
     self.user_config.workspace_path = vim.fn.expand(self.user_config.workspace_path)
     self.workspace_task_path = self.user_config.workspace_path .. '/tasks'
