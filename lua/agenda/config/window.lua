@@ -1,5 +1,8 @@
 local WindowConfig = {}
 
+WindowConfig.BORDER_ACTIVE = { "╔", "═", "╗", "║", "╝", "═", "╚", "║" }
+WindowConfig.BORDER_DIM = "rounded"
+
 function WindowConfig:task_list_window()
     return {
         relative = 'editor',
@@ -25,11 +28,13 @@ function WindowConfig:task_detail_window()
 end
 
 ---@param height? number Window height (default 1)
-function WindowConfig:task_edit_window(height)
+---@param width? number Window width (default 40)
+function WindowConfig:task_edit_window(height, width)
     height = height or 1
+    width = width or 40
     return {
         relative = 'editor',
-        width = math.floor(40),
+        width = math.floor(width),
         height = height,
         row = math.floor(vim.o.lines * 0.45),
         col = math.floor(vim.o.columns * 0.4),
@@ -75,6 +80,18 @@ function WindowConfig:status_bar_window()
     }
 end
 
+function WindowConfig:calendar_window()
+    return {
+        relative = 'editor',
+        width = 24,
+        height = 11,
+        row = math.floor(vim.o.lines * 0.35),
+        col = math.floor(vim.o.columns * 0.4),
+        style = 'minimal',
+        border = 'rounded',
+    }
+end
+
 function WindowConfig:project_list_window()
     return {
         relative = 'editor',
@@ -96,6 +113,35 @@ function WindowConfig:project_detail_window()
         col = math.floor(vim.o.columns * 0.3),
         style = 'minimal',
         border = 'rounded',
+    }
+end
+
+---@param line_count number Number of lines to display
+function WindowConfig:reminder_window(line_count)
+    local width = 40
+    return {
+        relative = 'editor',
+        width = width,
+        height = line_count,
+        row = 1,
+        col = vim.o.columns - width - 2,
+        style = 'minimal',
+        border = 'rounded',
+        focusable = false,
+        zindex = 50,
+    }
+end
+
+function WindowConfig:background_window()
+    return {
+        relative = 'editor',
+        width = vim.o.columns,
+        height = vim.o.lines,
+        row = 0,
+        col = 0,
+        style = 'minimal',
+        focusable = false,
+        zindex = 1,
     }
 end
 

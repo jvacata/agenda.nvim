@@ -1,11 +1,14 @@
 local init = require('agenda.init')
 local task_controller = require('agenda.controller.task')
 local input_controller = require('agenda.controller.input')
+local calendar_controller = require('agenda.controller.calendar')
+local calendar_model = require('agenda.model.entity.calendar')
 local render_controller = require('agenda.controller.render')
 local task_store = require('agenda.model.entity.task_store')
 local task_ui_state = require('agenda.model.ui.task_ui_state')
 local global_config = require('agenda.config.global')
 local file_utils = require('agenda.util.file')
+local Task = require('agenda.model.entity.task')
 local stub = require("luassert.stub")
 
 init:setup()
@@ -239,6 +242,175 @@ describe('Integration tests for tasks', function()
 
             render_controller:destroy()
             assert.are.equal("in_progress", task_store:get_tasks()[1].status)
+        end)
+    end)
+
+    describe('Task timestamps', function()
+        it('created_at is set on task creation', function()
+            vim.cmd('Agenda tasks')
+            local before = os.time()
+            task_controller:create_task("Test task")
+            local after = os.time()
+
+            local task = task_store:get_tasks()[1]
+            assert.is_not_nil(task.created_at)
+            assert.is_true(task.created_at >= before)
+            assert.is_true(task.created_at <= after)
+            assert.is_nil(task.due_at)
+
+            render_controller:destroy()
+        end)
+
+        it('created_at persists after reload', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+            local original_created_at = task_store:get_tasks()[1].created_at
+
+            render_controller:destroy()
+
+            -- Reopen
+            vim.cmd('Agenda tasks')
+            local task = task_store:get_tasks()[1]
+            assert.are.equal(original_created_at, task.created_at)
+
+            render_controller:destroy()
+        end)
+
+        it('edited_at equals created_at on task creation', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            local task = task_store:get_tasks()[1]
+            assert.is_not_nil(task.edited_at)
+            assert.are.equal(task.created_at, task.edited_at)
+
+            render_controller:destroy()
+        end)
+
+        it('edited_at updates when a field changes', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            local task = task_store:get_tasks()[1]
+            local original_edited_at = task.edited_at
+
+            local updated = Task.with_title(task, "Renamed task")
+            assert.is_true(updated.edited_at >= original_edited_at)
+            assert.are.equal(task.created_at, updated.created_at)
+
+            render_controller:destroy()
+        end)
+
+        it('edited_at persists after reload', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+            local original_edited_at = task_store:get_tasks()[1].edited_at
+
+            render_controller:destroy()
+
+            -- Reopen
+            vim.cmd('Agenda tasks')
+            local task = task_store:get_tasks()[1]
+            assert.are.equal(original_edited_at, task.edited_at)
+
+            render_controller:destroy()
+        end)
+
+        it('due_at is set via calendar confirm and persists', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            -- Navigate to detail view
+            task_controller:do_action()
+            -- Move to Due line (line index 7)
+            task_controller:detail_move_down() -- 1 -> 2
+            task_controller:detail_move_down() -- 2 -> 3
+            task_controller:detail_move_down() -- 3 -> 4
+            task_controller:detail_move_down() -- 4 -> 5
+            task_controller:detail_move_down() -- 5 -> 6
+            task_controller:detail_move_down() -- 6 -> 7
+            -- Open calendar
+            task_controller:do_action()
+
+            -- Confirm the calendar (takes current time as default)
+            calendar_controller:confirm()
+
+            local task = task_store:get_tasks()[1]
+            assert.is_not_nil(task.due_at)
+            assert.is_number(task.due_at)
+
+            render_controller:destroy()
+        end)
+
+        it('due_at is cleared via calendar clear', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            -- First set a due date
+            task_controller:do_action()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:do_action()
+            calendar_controller:confirm()
+
+            assert.is_not_nil(task_store:get_tasks()[1].due_at)
+
+            -- Now clear it
+            task_controller:do_action()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:do_action()
+            calendar_controller:clear()
+
+            local task = task_store:get_tasks()[1]
+            assert.is_nil(task.due_at)
+
+            render_controller:destroy()
+        end)
+
+        it('due_at cancel does not change value', function()
+            vim.cmd('Agenda tasks')
+            task_controller:create_task("Test task")
+
+            task_controller:do_action()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:detail_move_down()
+            task_controller:do_action()
+            calendar_controller:cancel()
+
+            assert.is_nil(task_store:get_tasks()[1].due_at)
+
+            render_controller:destroy()
+        end)
+
+        it('with_due_at preserves other fields', function()
+            local task = Task.create("Test")
+            task.project_id = "some-project"
+            task.description = "some desc"
+
+            local due = os.time()
+            local updated = Task.with_due_at(task, due)
+
+            assert.are.equal(task.id, updated.id)
+            assert.are.equal(task.title, updated.title)
+            assert.are.equal(task.status, updated.status)
+            assert.are.equal(task.project_id, updated.project_id)
+            assert.are.equal(task.description, updated.description)
+            assert.are.equal(task.created_at, updated.created_at)
+            assert.is_not_nil(updated.edited_at)
+            assert.are.equal(due, updated.due_at)
         end)
     end)
 end)

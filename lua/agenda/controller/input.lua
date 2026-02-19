@@ -8,7 +8,7 @@ function InputController:init()
 end
 
 ---Initialize the input view
----@param params {data: string|string[], callback: function, mode?: "edit"|"select"}
+---@param params {data: string|string[], callback: function, mode?: "edit"|"select"|"multiline"}
 function InputController:init_view(params)
     local mode = params.mode or "edit"
     input_model:open(params.data, params.callback, mode)
@@ -34,10 +34,11 @@ function InputController:bind_mapping()
             { buffer = input_view.bufnr, silent = true })
         vim.keymap.set('n', 'k', function() InputController:select_prev() end,
             { buffer = input_view.bufnr, silent = true })
-    else
+    elseif input_model:get_mode() == "edit" then
         vim.keymap.set('i', '<CR>', function() vim.cmd("stopinsert") end,
             { buffer = input_view.bufnr, silent = true })
     end
+    -- multiline mode: insert mode <CR> adds newlines normally, normal mode <CR> saves
 end
 
 ---Get view data for rendering
