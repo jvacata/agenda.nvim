@@ -7,6 +7,7 @@
 ---@field private _selected_project_id string|nil
 ---@field private _focus KanbanFocus
 ---@field private _project_list_index number
+---@field private _moving_task_id string|nil
 local KanbanUIState = {}
 
 KanbanUIState._selected_column = "open"
@@ -14,6 +15,7 @@ KanbanUIState._selected_row = nil
 KanbanUIState._selected_project_id = nil
 KanbanUIState._focus = "project_list"
 KanbanUIState._project_list_index = 0
+KanbanUIState._moving_task_id = nil
 
 ---Get selected column
 ---@return KanbanColumn
@@ -75,6 +77,18 @@ function KanbanUIState:set_project_list_index(index)
     self._project_list_index = index
 end
 
+---Get the ID of the task being moved
+---@return string|nil
+function KanbanUIState:get_moving_task_id()
+    return self._moving_task_id
+end
+
+---Set the ID of the task being moved
+---@param id string|nil
+function KanbanUIState:set_moving_task_id(id)
+    self._moving_task_id = id
+end
+
 ---Reset all state to initial values
 function KanbanUIState:reset()
     self._selected_column = "open"
@@ -82,6 +96,7 @@ function KanbanUIState:reset()
     self._selected_project_id = nil
     self._focus = "project_list"
     self._project_list_index = 0
+    self._moving_task_id = nil
 end
 
 return KanbanUIState

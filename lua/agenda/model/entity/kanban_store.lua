@@ -78,6 +78,18 @@ function KanbanStore:status_to_column(status)
     return mapping[status] or "open"
 end
 
+---Map kanban column to task status
+---@param column KanbanColumn
+---@return TaskStatus
+function KanbanStore:column_to_status(column)
+    local mapping = {
+        open = "todo",
+        in_progress = "in_progress",
+        done = "done"
+    }
+    return mapping[column] or "todo"
+end
+
 ---Initialize with tasks distributed by their status
 ---@param tasks Task[]
 function KanbanStore:init_with_tasks(tasks)

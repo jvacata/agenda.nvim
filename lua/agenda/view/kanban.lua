@@ -208,6 +208,22 @@ function KanbanView:highlight_selected(view_data)
     vim.api.nvim_buf_set_extmark(self.bufnr, global_config.ns, 0, title_start,
         { end_col = title_start + #title, hl_group = "Search" })
 
+    -- Highlight the task being moved (in its original column)
+    if view_data.moving_task_id then
+        for ci, col_name in ipairs(view_data.column_names) do
+            local col_tasks = view_data.columns[col_name] or {}
+            for ri, t in ipairs(col_tasks) do
+                if t.id == view_data.moving_task_id then
+                    local moving_start_col = (ci - 1) * (COLUMN_WIDTH + COLUMN_PADDING)
+                    local moving_line = ri - 1 + 2 -- 0-based row + header + separator
+                    local text_len = math.min(#t.title + 2, COLUMN_WIDTH)
+                    vim.api.nvim_buf_set_extmark(self.bufnr, global_config.ns, moving_line, moving_start_col,
+                        { end_col = moving_start_col + text_len, hl_group = "Visual" })
+                end
+            end
+        end
+    end
+
     -- Highlight selected task if any
     if view_data.selected_row == nil then
         return
