@@ -22,6 +22,7 @@ function TaskController:init_view()
     end
     task_view:init()
     self:bind_mapping()
+    render_controller:add_view("background")
     render_controller:add_view("status_bar")
 end
 
@@ -325,6 +326,7 @@ function TaskController:close()
         return
     end
     render_controller:remove_view("status_bar", false)
+    render_controller:remove_view("background", false)
     render_controller:remove_view("task")
 end
 

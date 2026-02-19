@@ -30,6 +30,7 @@ function KanbanController:init_view()
 
     kanban_view:init()
     self:bind_mapping()
+    render_controller:add_view("background")
     render_controller:add_view("status_bar")
 end
 
@@ -279,6 +280,7 @@ end
 
 function KanbanController:close()
     render_controller:remove_view("status_bar", false)
+    render_controller:remove_view("background", false)
     render_controller:remove_view("kanban")
 end
 

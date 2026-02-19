@@ -9,6 +9,7 @@ local task_controller = require('agenda.controller.task')
 local kanban_controller = require('agenda.controller.kanban')
 local project_controller = require('agenda.controller.project')
 local status_bar_controller = require('agenda.controller.status_bar')
+local background_controller = require('agenda.controller.background')
 local task_store = require('agenda.model.entity.task_store')
 local task_ui_state = require('agenda.model.ui.task_ui_state')
 local kanban_store = require('agenda.model.entity.kanban_store')
@@ -23,6 +24,7 @@ local calendar_view = require('agenda.view.calendar')
 local kanban_view = require('agenda.view.kanban')
 local project_view = require('agenda.view.project')
 local status_bar_view = require('agenda.view.status_bar')
+local background_view = require('agenda.view.background')
 
 local is_loaded = false
 
@@ -33,6 +35,7 @@ end
 
 M.init_instances = function()
     vim.api.nvim_set_hl(0, "NoCursor", { fg = "#000000", bg = "#000000", blend = 100 })
+    vim.api.nvim_set_hl(0, "AgendaBackground", { link = "NormalFloat", default = true })
 
     -- Reset stores on initialization
     task_store:reset()
@@ -49,6 +52,7 @@ M.init_instances = function()
     kanban_controller:init()
     project_controller:init()
     status_bar_controller:init()
+    background_controller:init()
 
     render_controller:init(
         {
@@ -58,7 +62,8 @@ M.init_instances = function()
             calendar = { view = calendar_view, controller = calendar_controller },
             kanban = { view = kanban_view, controller = kanban_controller },
             project = { view = project_view, controller = project_controller },
-            status_bar = { view = status_bar_view, controller = status_bar_controller }
+            status_bar = { view = status_bar_view, controller = status_bar_controller },
+            background = { view = background_view, controller = background_controller }
         }
     )
 end
