@@ -113,4 +113,17 @@ function WindowConfig:project_detail_window()
     }
 end
 
+function WindowConfig:background_window()
+    return {
+        relative = 'editor',
+        width = vim.o.columns,
+        height = vim.o.lines,
+        row = 0,
+        col = 0,
+        style = 'minimal',
+        focusable = false,
+        zindex = 1,
+    }
+end
+
 return WindowConfig
