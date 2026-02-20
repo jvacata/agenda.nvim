@@ -14,4 +14,12 @@ Constants.DUE_AT_LINE_INDEX = 7
 Constants.PROJECT_ID_LINE_INDEX = 0
 Constants.PROJECT_NAME_LINE_INDEX = 1
 
+-- Epic detail line indices
+Constants.EPIC_ID_LINE_INDEX = 0
+Constants.EPIC_NAME_LINE_INDEX = 1
+Constants.EPIC_DESCRIPTION_LINE_INDEX = 2
+
+-- Task detail epic field index
+Constants.EPIC_LINE_INDEX = 8
+
 return Constants

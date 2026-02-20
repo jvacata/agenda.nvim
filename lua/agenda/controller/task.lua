@@ -9,6 +9,8 @@ local task_view = require('agenda.view.task')
 local render_controller = require('agenda.controller.render')
 local project_store = require('agenda.model.entity.project_store')
 local project_service = require('agenda.service.project_service')
+local epic_store = require('agenda.model.entity.epic_store')
+local epic_service = require('agenda.service.epic_service')
 
 function TaskController:init()
 end
@@ -16,6 +18,7 @@ end
 function TaskController:init_view()
     task_service:init_load_tasks()
     project_service:init_load_projects()
+    epic_service:init_load_epics()
     -- Initialize selection if we have tasks
     if task_store:get_task_count() > 0 then
         task_ui_state:set_selected_index(0)
@@ -74,14 +77,23 @@ function TaskController:get_selected_task()
 end
 
 ---Get view data for rendering
----@return {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil, project_name: string|nil}
+---@return {tasks: Task[], selected_index: number|nil, active_window: WindowType, detail_index: number|nil, project_name: string|nil, epic_name: string|nil}
 function TaskController:get_view_data()
     local task = self:get_selected_task()
     local project_name = nil
-    if task and task.project_id then
-        local project = project_store:get_project_by_id(task.project_id)
-        if project then
-            project_name = project.name
+    local epic_name = nil
+    if task then
+        if task.project_id then
+            local project = project_store:get_project_by_id(task.project_id)
+            if project then
+                project_name = project.name
+            end
+        end
+        if task.epic_id then
+            local epic = epic_store:get_epic_by_id(task.epic_id)
+            if epic then
+                epic_name = epic.name
+            end
         end
     end
 
@@ -90,7 +102,8 @@ function TaskController:get_view_data()
         selected_index = task_ui_state:get_selected_index(),
         active_window = task_ui_state:get_active_window(),
         detail_index = task_ui_state:get_detail_index(),
-        project_name = project_name
+        project_name = project_name,
+        epic_name = epic_name
     }
 end
 
@@ -161,7 +174,7 @@ function TaskController:detail_move_down()
         return
     end
 
-    if detail_index < constants.DUE_AT_LINE_INDEX then
+    if detail_index < constants.EPIC_LINE_INDEX then
         task_ui_state:set_detail_index(detail_index + 1)
     end
     render_controller:render()
@@ -295,6 +308,42 @@ function TaskController:show_edit()
             callback = callback,
             data = task.description or "",
             mode = "multiline"
+        })
+    elseif detail_index == constants.EPIC_LINE_INDEX then
+        local callback = function(new_value)
+            if new_value == nil then
+                return
+            end
+
+            local current_task = self:get_selected_task()
+            if current_task then
+                local epic_id = nil
+                if new_value ~= "None" then
+                    local epics = epic_store:get_epics()
+                    for _, epic in ipairs(epics) do
+                        if epic.name == new_value then
+                            epic_id = epic.id
+                            break
+                        end
+                    end
+                end
+                local updated_task = Task.with_epic(current_task, epic_id)
+                task_service:save_task(updated_task)
+                task_store:update_task(updated_task)
+            end
+            render_controller:render()
+        end
+
+        local options = { "None" }
+        local epics = epic_store:get_epics()
+        for _, epic in ipairs(epics) do
+            table.insert(options, epic.name)
+        end
+
+        render_controller:add_view("input", {
+            callback = callback,
+            data = options,
+            mode = "select"
         })
     elseif detail_index == constants.DUE_AT_LINE_INDEX then
         local callback = function(new_value)

@@ -107,6 +107,8 @@ function TaskView:render_task_detail(view_data)
             { "Edited: " .. self:format_timestamp(task.edited_at) })
         vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.DUE_AT_LINE_INDEX, constants.DUE_AT_LINE_INDEX + 1, false,
             { "Due: " .. self:format_timestamp(task.due_at) })
+        vim.api.nvim_buf_set_lines(self.detail_bufnr, constants.EPIC_LINE_INDEX, constants.EPIC_LINE_INDEX + 1, false,
+            { "Epic: " .. (view_data.epic_name or "None") })
     end
     vim.api.nvim_set_option_value('modifiable', false, { buf = self.detail_bufnr })
 
