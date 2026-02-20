@@ -9,6 +9,7 @@ local calendar_controller = require('agenda.controller.calendar')
 local task_controller = require('agenda.controller.task')
 local kanban_controller = require('agenda.controller.kanban')
 local project_controller = require('agenda.controller.project')
+local epic_controller = require('agenda.controller.epic')
 local status_bar_controller = require('agenda.controller.status_bar')
 local background_controller = require('agenda.controller.background')
 local task_store = require('agenda.model.entity.task_store')
@@ -17,6 +18,8 @@ local kanban_store = require('agenda.model.entity.kanban_store')
 local kanban_ui_state = require('agenda.model.ui.kanban_ui_state')
 local project_store = require('agenda.model.entity.project_store')
 local project_ui_state = require('agenda.model.ui.project_ui_state')
+local epic_store = require('agenda.model.entity.epic_store')
+local epic_ui_state = require('agenda.model.ui.epic_ui_state')
 
 local main_view = require('agenda.view.main')
 local task_view = require('agenda.view.task')
@@ -24,6 +27,7 @@ local input_view = require('agenda.view.input')
 local calendar_view = require('agenda.view.calendar')
 local kanban_view = require('agenda.view.kanban')
 local project_view = require('agenda.view.project')
+local epic_view = require('agenda.view.epic')
 local status_bar_view = require('agenda.view.status_bar')
 local background_view = require('agenda.view.background')
 
@@ -46,6 +50,8 @@ M.init_instances = function()
     kanban_ui_state:reset()
     project_store:reset()
     project_ui_state:reset()
+    epic_store:reset()
+    epic_ui_state:reset()
 
     main_controller:init()
     task_controller:init()
@@ -53,6 +59,7 @@ M.init_instances = function()
     calendar_controller:init()
     kanban_controller:init()
     project_controller:init()
+    epic_controller:init()
     status_bar_controller:init()
     background_controller:init()
 
@@ -64,6 +71,7 @@ M.init_instances = function()
             calendar = { view = calendar_view, controller = calendar_controller },
             kanban = { view = kanban_view, controller = kanban_controller },
             project = { view = project_view, controller = project_controller },
+            epic = { view = epic_view, controller = epic_controller },
             status_bar = { view = status_bar_view, controller = status_bar_controller },
             background = { view = background_view, controller = background_controller }
         }

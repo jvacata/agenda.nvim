@@ -5,6 +5,7 @@
 ---@field title string
 ---@field status TaskStatus
 ---@field project_id string|nil -- optional project reference
+---@field epic_id string|nil -- optional epic reference
 ---@field description string|nil -- optional task description
 ---@field created_at number -- unix timestamp of creation
 ---@field edited_at number -- unix timestamp of last edit
@@ -25,6 +26,7 @@ function Task.create(title, status)
         title = title or "",
         status = status or "todo",
         project_id = nil,
+        epic_id = nil,
         description = nil,
         created_at = now,
         edited_at = now,
@@ -42,6 +44,7 @@ function Task.with_title(task, new_title)
         title = new_title,
         status = task.status,
         project_id = task.project_id,
+        epic_id = task.epic_id,
         description = task.description,
         created_at = task.created_at,
         edited_at = os.time(),
@@ -59,6 +62,7 @@ function Task.with_status(task, new_status)
         title = task.title,
         status = new_status,
         project_id = task.project_id,
+        epic_id = task.epic_id,
         description = task.description,
         created_at = task.created_at,
         edited_at = os.time(),
@@ -76,6 +80,7 @@ function Task.with_project(task, project_id)
         title = task.title,
         status = task.status,
         project_id = project_id,
+        epic_id = task.epic_id,
         description = task.description,
         created_at = task.created_at,
         edited_at = os.time(),
@@ -93,6 +98,7 @@ function Task.with_description(task, new_description)
         title = task.title,
         status = task.status,
         project_id = task.project_id,
+        epic_id = task.epic_id,
         description = new_description,
         created_at = task.created_at,
         edited_at = os.time(),
@@ -110,10 +116,29 @@ function Task.with_due_at(task, due_at)
         title = task.title,
         status = task.status,
         project_id = task.project_id,
+        epic_id = task.epic_id,
         description = task.description,
         created_at = task.created_at,
         edited_at = os.time(),
         due_at = due_at
+    }
+end
+
+---Create a copy of task with updated epic
+---@param task Task
+---@param epic_id string|nil
+---@return Task
+function Task.with_epic(task, epic_id)
+    return {
+        id = task.id,
+        title = task.title,
+        status = task.status,
+        project_id = task.project_id,
+        epic_id = epic_id,
+        description = task.description,
+        created_at = task.created_at,
+        edited_at = os.time(),
+        due_at = task.due_at
     }
 end
 

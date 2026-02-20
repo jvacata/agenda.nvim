@@ -132,6 +132,43 @@ function WindowConfig:reminder_window(line_count)
     }
 end
 
+function WindowConfig:epic_list_window()
+    return {
+        relative = 'editor',
+        width = math.floor(40),
+        height = math.floor(vim.o.lines * 0.6),
+        row = math.floor(vim.o.lines * 0.1),
+        col = math.floor(vim.o.columns * 0.1),
+        style = 'minimal',
+        border = 'rounded',
+    }
+end
+
+function WindowConfig:epic_detail_window()
+    return {
+        relative = 'editor',
+        width = math.floor(48),
+        height = math.floor(vim.o.lines * 0.6),
+        row = math.floor(vim.o.lines * 0.1),
+        col = math.floor(vim.o.columns * 0.3),
+        style = 'minimal',
+        border = 'rounded',
+    }
+end
+
+function WindowConfig:epic_task_list_window()
+    return {
+        relative = 'editor',
+        width = math.floor(48),
+        height = math.floor(vim.o.lines * 0.6),
+        row = math.floor(vim.o.lines * 0.1),
+        col = math.floor(vim.o.columns * 0.3) + 50,
+        style = 'minimal',
+        border = 'rounded',
+        focusable = false,
+    }
+end
+
 function WindowConfig:background_window()
     return {
         relative = 'editor',

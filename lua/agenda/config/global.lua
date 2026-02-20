@@ -6,14 +6,15 @@ GlobalConfig.user_config = {
     autosave_type = 'git',
     reminder = {
         enabled = true,
-        check_interval = 10, -- seconds between overdue checks
+        check_interval = 10,  -- seconds between overdue checks
         remind_interval = 10, -- minutes before first reminder and between repeats
-        popup_duration = 10, -- seconds the popup stays visible
+        popup_duration = 10,  -- seconds the popup stays visible
     }
 }
 
 GlobalConfig.workspace_task_path = ''
 GlobalConfig.workspace_project_path = ''
+GlobalConfig.workspace_epic_path = ''
 GlobalConfig.ns = vim.api.nvim_create_namespace("agenda")
 GlobalConfig.orig_cursor_value = ''
 
@@ -27,6 +28,7 @@ function GlobalConfig:init(user_config)
     self.user_config.workspace_path = vim.fn.expand(self.user_config.workspace_path)
     self.workspace_task_path = self.user_config.workspace_path .. '/tasks'
     self.workspace_project_path = self.user_config.workspace_path .. '/projects'
+    self.workspace_epic_path = self.user_config.workspace_path .. '/epics'
     self.orig_cursor_value = vim.api.nvim_get_option_value('guicursor', {})
 end
 
